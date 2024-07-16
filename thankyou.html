@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thank You</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <div class="logo-image"></div>
+    </header>
+    <hr width="300px" size="2" color="#f89829">
+        <h1>Thank You!</h1>
+    <hr width="500px" size="2" color="#f89829">
+    
+    <div class="form-container">
+        <h2>Confirmation Details</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Motive</th>
+                    <th>Time Frame</th>
+                    <th id="partialDayHeader" style="display: none;">Partial Day Option</th>
+                    <th>Date From</th>
+                    <th id="dateToHeader" style="display: none;">Date To</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td id="confirmName"></td>
+                    <td id="confirmMotive"></td>
+                    <td id="confirmTimeFrame"></td>
+                    <td id="confirmPartialDayOption" style="display: none;"></td>
+                    <td id="confirmDateFrom"></td>
+                    <td id="confirmDateTo" style="display: none;"></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <footer>
+        <p>&copy; 2024 Lionbridge Games. All rights reserved.</p>
+    </footer>
+    <script>
+        // Retrieve the details from localStorage
+        const details = JSON.parse(localStorage.getItem('requestDetails'));
+
+        // Populate the table with the details
+        document.getElementById('confirmName').textContent = details.name;
+        document.getElementById('confirmMotive').textContent = details.motive;
+        document.getElementById('confirmTimeFrame').textContent = details.timeFrame;
+        document.getElementById('confirmPartialDayOption').textContent = details.partialDayOption;
+        document.getElementById('confirmDateFrom').textContent = details.dateFrom;
+        document.getElementById('confirmDateTo').textContent = details.dateTo;
+
+        // Show or hide the partial day row based on the time frame
+        document.getElementById('confirmPartialDayOption').style.display = (details.timeFrame === 'Partial day') ? 'table-cell' : 'none';
+        document.getElementById('partialDayHeader').style.display = (details.timeFrame === 'Partial day') ? 'table-cell' : 'none';
+
+        // Show or hide the date to row based on the time frame
+        document.getElementById('confirmDateTo').style.display = (details.timeFrame === 'Multiple days') ? 'table-cell' : 'none';
+        document.getElementById('dateToHeader').style.display = (details.timeFrame === 'Multiple days') ? 'table-cell' : 'none';
+    </script>
+</body>
+</html>

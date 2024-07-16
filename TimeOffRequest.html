@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Time Off Request</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+</head>
+<body>
+    <header>
+        <div class="logo-image"></div> <!-- Updated to use a div -->
+    </header>
+    <hr width="300px" size="2" color="#f89829">
+    <h1>Time Off Request</h1>
+    <hr width="500px" size="2" color="#f89829">
+    
+    <div class="form-container">
+        <form id="OutOfOfficeForm" name="OutOfOffice" onsubmit="submitForm(event)">
+            <section>
+                <label for="nameSelect">Name:</label>  
+                <select id="nameSelect" name="name">
+                    <option value="" disabled selected>Select a name</option>
+                    <option value="Name 1">Name 1</option>                  
+                </select>
+            </section>
+            <hr> 
+            <section>
+                <label for="motiveSelect">Out of office:</label>
+                <select id="motiveSelect" name="motive" autocomplete="motive">
+                    <option value="" disabled selected>Select a motive</option>
+                    <option value="Vacation">Vacation</option>
+                    <option value="Personal day">Personal day</option>
+                    <option value="Birthday">Birthday</option>
+                    <option value="Other">Other</option>                  
+                </select>
+            </section>
+            <hr> 
+            <section>
+                <label for="timeFrameSelect">Time Frame:</label>
+                <select id="timeFrameSelect" name="timeFrame" autocomplete="time-frame">
+                    <option value="" disabled selected>Select an option</option>
+                    <option value="Partial day - Morning">Partial day - Morning</option>
+                    <option value="Partial day - Afternoon">Partial day - Afternoon</option>
+                    <option value="Entire day">Entire day</option>
+                    <option value="Multiple days">Multiple days</option>                   
+                </select>
+            </section>
+            
+            <br> 
+            <section id="dateFromSection">
+                <label for="dateFrom">Date From:</label>
+                <input type="text" id="dateFrom" name="dateFrom"  autocomplete="off">
+            </section>
+            <br>
+            <section id="dateToSection" style="display: none;">
+                <label for="dateTo">Date To:</label>
+                <input type="text" id="dateTo" name="dateTo" autocomplete="off">
+            </section>
+            <br>
+            <div class="button-container">
+                <button type="button" class="button" onclick="addItem()">Add</button>
+            </div>
+        </form>
+        
+        <div class="confirmation-container">
+            <h2>Confirmation Details</h2>
+            <table id="confirmationTable">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Motive</th>
+                        <th>Time Frame</th>
+                        <th id="partialDayHeader" style="display: none;">Partial Day Option</th>
+                        <th>Date From</th>
+                        <th id="dateToHeader" style="display: none;">Date To</th>
+                    </tr>
+                </thead>
+                <tbody id="confirmationTableBody">
+                    <!-- Rows will be added here dynamically -->
+                </tbody>
+            </table>
+        </div>
+            <div class="button-container">
+                <button type="button" class="button" onclick="confirmItems()">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 Lionbridge Games. All rights reserved.</p>
+    </footer>
+
+    <script>
+        $(function() {
+            // Initialize datepickers
+            $("#dateFrom, #dateTo").datepicker({
+                changeMonth: true,
+                changeYear: true,
+                showButtonPanel: true
+            });
+    
+            // Event listener to show/hide "Date To" based on "Time Frame" selection
+            $("#timeFrameSelect").on("change", function() {
+                if ($(this).val() === "Multiple days") {
+                    $("#dateToSection").show();
+                } else {
+                    $("#dateToSection").hide();
+                }
+            });
+        });
+    
+        function addItem() {
+            const name = $("#nameSelect").val();
+            const motive = $("#motiveSelect").val();
+            const timeFrame = $("#timeFrameSelect").val();
+            const dateFrom = $("#dateFrom").val();
+            const dateTo = $("#dateTo").val();
+    
+            if (!name || !motive || !timeFrame || !dateFrom) {
+                alert("Please fill in all required fields.");
+                return;
+            }
+    
+            const row = `<tr>
+                <td>${name}</td>
+                <td>${motive}</td>
+                <td>${timeFrame}</td>
+                <td>${dateFrom}</td>
+                <td>${timeFrame === 'Multiple days' ? dateTo : ''}</td>
+            </tr>`;
+    
+            $("#confirmationTableBody").append(row);
+        }
+    
+        function confirmItems() {
+            const tableData = [];
+            $("#confirmationTableBody tr").each(function() {
+                const row = $(this).find("td").map(function() {
+                    return $(this).text();
+                }).get();
+                tableData.push(row);
+            });
+    
+            // Generate Markdown table
+            let markdownTable = "| Name | Motive | Time Frame | Date From | Date To |\n";
+            markdownTable += "|------|--------|------------|-----------|---------|\n";
+    
+            tableData.forEach(row => {
+                markdownTable += `| ${row[0]} | ${row[1]} | ${row[2]} | ${row[3]} | ${row[4] || ''} |\n`;
+            });
+    
+            // Write Markdown table to table.yml
+            fs.appendFileSync('table.yml', markdownTable, 'utf8');
+    
+            console.log("Markdown table saved to table.yml");
+            alert("Items confirmed!");
+        }
+    
+        // Initialize date pickers with min/max date logic
+        $(function() {
+            var dateFormat = "mm/dd/yy",
+                from = $("#dateFrom")
+                    .datepicker({
+                        defaultDate: "+1w",
+                        changeMonth: true,
+                        changeYear: true,
+                        showButtonPanel: true
+                    })
+                    .on("change", function() {
+                        to.datepicker("option", "minDate", getDate(this));
+                    }),
+                to = $("#dateTo")
+                    .datepicker({
+                        defaultDate: "+1w",
+                        changeMonth: true,
+                        changeYear: true,
+                        showButtonPanel: true
+                    })
+                    .on("change", function() {
+                        from.datepicker("option", "maxDate", getDate(this));
+                    });
+    
+            function getDate(element) {
+                var date;
+                try {
+                    date = $.datepicker.parseDate(dateFormat, element.value);
+                } catch (error) {
+                    date = null;
+                }
+                return date;
+            }
+        });
+    </script>
+</body>
+</html>
