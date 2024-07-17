@@ -1,5 +1,5 @@
 {
   "dependencies": {
-    "aws-sdk": "^2.100.0"  // Example version, adjust as needed
+    "aws-sdk": "^2.100.0"  
   }
 }
