@@ -19,12 +19,28 @@
     <main>
 
         <div class="form-container">
+            <label for="requester">Requester:</label>
+            <input type="text" id="requester" name="requester">
+            <br> 
+            <br>           
+            <label for="task">Task:</label>
+            <input type="text" id="task" name="task">
+            <br>
+            <br>
+            <label for="taRequested">Number of TA Requested:</label>
+            <input type="number" id="taRequested" name="taRequested" min="1" max="25">
+            <br>
+            <br>
             <label for="from">From:</label>
             <input type="text" id="from" name="from">
+            
             <label for="to">To:</label>
             <input type="text" id="to" name="to">
-            <button id="showTable">Show Availability</button>
+            <br>
+            <br>
+            <button id="showTable">Confirm</button>
         </div>
+        
         <table id="availabilityTable" style="display:none; margin-top: 20px;">
             <thead>
                 <tr>

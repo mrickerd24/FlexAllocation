@@ -136,28 +136,35 @@
         }
     
         function confirmItems() {
-            const tableData = [];
-            $("#confirmationTableBody tr").each(function() {
-                const row = $(this).find("td").map(function() {
-                    return $(this).text();
-                }).get();
-                tableData.push(row);
-            });
-    
-            // Generate Markdown table
-            let markdownTable = "| Name | Motive | Time Frame | Date From | Date To |\n";
-            markdownTable += "|------|--------|------------|-----------|---------|\n";
-    
-            tableData.forEach(row => {
-                markdownTable += `| ${row[0]} | ${row[1]} | ${row[2]} | ${row[3]} | ${row[4] || ''} |\n`;
-            });
-    
-            // Write Markdown table to table.yml
-            fs.appendFileSync('table.yml', markdownTable, 'utf8');
-    
-            console.log("Markdown table saved to table.yml");
-            alert("Items confirmed!");
+    const tableData = [];
+    $("#confirmationTableBody tr").each(function() {
+        const row = $(this).find("td").map(function() {
+            return $(this).text();
+        }).get();
+        tableData.push(row);
+    });
+
+    // Prepare data to send to backend
+    const dataToSave = {
+        tableData: tableData
+    };
+
+    // Send data to backend using AJAX
+    $.ajax({
+        url: '/saveData',  // Replace with your backend endpoint
+        type: 'POST',       // Adjust HTTP method as necessary
+        contentType: 'application/json',
+        data: JSON.stringify(dataToSave),
+        success: function(response) {
+            console.log('Data saved successfully:', response);
+            alert('Items confirmed and saved!');
+        },
+        error: function(xhr, status, error) {
+            console.error('Error saving data:', error);
+            alert('Error saving items. Please try again later.');
         }
+    });
+}
     
         // Initialize date pickers with min/max date logic
         $(function() {
