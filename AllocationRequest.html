@@ -125,12 +125,12 @@
                     var toDateString = $.datepicker.formatDate(dateFormat, toDate);
     
                     try {
-                        // Call the API
-                        const response = await fetch(`https://rivf9kieia.execute-api.ca-central-1.amazonaws.com/prod?from=${fromDateString}&to=${toDateString}`, { // Replace with your API Gateway endpoint
+                        // Replace with your actual API endpoint for fetching availability
+                        const response = await fetch(`https://d6lc96ph7c.execute-api.ca-central-1.amazonaws.com/prod?from=${fromDateString}&to=${toDateString}`, {
                             method: 'GET',
                             headers: {
                                 'Content-Type': 'application/json',
-                                'x-api-key': 'Nvqc4C0wiA4BBFoKpbAhD4y2kcs3ioew8ErzzQ39' // Replace with your actual API key
+                                'x-api-key': 'Nvqc4C0wiA4BBFoKpbAhD4y2kcs3ioew8ErzzQ39' // Your actual API key for fetching availability
                             }
                         });
     
@@ -163,32 +163,50 @@
                     alert("Please select both 'From' and 'To' dates.");
                 }
             });
+    
+            $("#sendEmail").on("click", async function() {
+                // Get form values
+                var requester = $("#requester").val();
+                var task = $("#task").val();
+                var taRequested = $("#taRequested").val();
+                var hoursRequested = $("#hoursRequested").val();
+                var from = $("#from").val();
+                var to = $("#to").val();
+                var additionalInfo = $("#additionalInfo").val();
+    
+                // Construct email content
+                var emailContent = `New allocation request from ${requester} for task ${task}.\nDate: ${from} to ${to}\nAdditional Info: ${additionalInfo}`;
+    
+                try {
+                    // Replace with your actual Lambda/API endpoint for sending email
+                    const response = await fetch('https://d6lc96ph7c.execute-api.ca-central-1.amazonaws.com/prod/send-email', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'x-api-key': 'Nvqc4C0wiA4BBFoKpbAhD4y2kcs3ioew8ErzzQ39' // Your actual API key for sending email
+                        },
+                        body: JSON.stringify({
+                            requester: requester,
+                            task: task,
+                            from: from,
+                            to: to,
+                            additionalInfo: additionalInfo
+                        })
+                    });
+    
+                    // Check if the response is okay
+                    if (!response.ok) {
+                        throw new Error('Failed to send email');
+                    }
+    
+                    // Show success message
+                    alert('Email sent successfully!');
+                } catch (error) {
+                    // Handle errors
+                    alert('Error: ' + error.message);
+                }
+            });
         });
-    
-        function addItem() {
-            // Get form values
-            var requester = $("#requester").val();
-            var task = $("#task").val();
-            var taRequested = $("#taRequested").val();
-            var hoursRequested = $("#hoursRequested").val();
-            var from = $("#from").val();
-            var to = $("#to").val();
-            var additionalInfo = $("#additionnalInfo").val();
-    
-            // Create a new row
-            var newRow = `<tr>
-                <td>${requester}</td>
-                <td>${from}</td>
-                <td>${to}</td>
-                <td>${task}</td>
-                <td>${taRequested}</td>
-                <td>${hoursRequested}</td>
-                <td>${additionalInfo}</td>
-            </tr>`;
-    
-            // Append the new row to the table
-            $("#RequestConfirmation tbody").append(newRow);
-        }
     </script>
 </body>
 </html>
