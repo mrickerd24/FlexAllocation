@@ -76,8 +76,8 @@
             </tbody>
         </table>
         <div class="button-container">
-                <button type="button" class="button" onclick="confirmItems()">Confirm</button>
-            </div>
+            <button type="button" class="button" onclick="confirmItems()">Confirm</button>
+        </div>
     </div>
     </main>
 
@@ -201,6 +201,7 @@
     
                     // Show success message
                     alert('Email sent successfully!');
+                    window.location.href = 'thankyou.html'; // Redirect to thankyou.html
                 } catch (error) {
                     // Handle errors
                     alert('Error: ' + error.message);
