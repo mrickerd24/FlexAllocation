@@ -207,6 +207,33 @@
                 }
             });
         });
+
+        function addItem() {
+            // Get form values
+            var requester = $("#requester").val();
+            var task = $("#task").val();
+            var additionalInfo = $("#additionnalInfo").val();
+            var taRequested = $("#taRequested").val();
+            var hoursRequested = $("#hoursRequested").val();
+            var from = $("#from").val();
+            var to = $("#to").val();
+
+            // Create new row for the table
+            var newRow = `
+                <tr>
+                    <td>${requester}</td>
+                    <td>${from}</td>
+                    <td>${to}</td>
+                    <td>${task}</td>
+                    <td>${taRequested}</td>
+                    <td>${hoursRequested}</td>
+                    <td>${additionalInfo}</td>
+                </tr>
+            `;
+
+            // Append the new row to the table
+            $("#RequestConfirmation tbody").append(newRow);
+        }
     </script>
 </body>
 </html>
