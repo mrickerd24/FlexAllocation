@@ -15,69 +15,68 @@
     </header>
 
     <main>
-    <hr width="300px" size="2" color="#f89829">
-    <h1 style="text-align: center;">Allocation Request</h1>
-    <hr width="500px" size="2" color="#f89829">
+        <hr width="300px" size="2" color="#f89829">
+        <h1 style="text-align: center;">Allocation Request</h1>
+        <hr width="500px" size="2" color="#f89829">
 
-    <div class="form-container" style="width: 1000px; margin: 0 auto; padding: 20px;">
-        <form id="AllocationRequest" name="AllocationRequest" onsubmit="submitForm(event)">
-            <div class="form-group">
-                <label for="requester">Requester:</label>
-                <input type="text" id="requester" name="requester">
-            </div>
-            <div class="form-group">
-                <label for="task">Task:</label>
-                <input type="text" id="task" name="task">
-            </div>
-            <div class="form-group">
-                <label for="additionalInfo">Additional Information:</label>
-                <textarea id="additionalInfo" name="additionalInfo" rows="4" cols="50"></textarea>
-            </div>
-            <div class="form-group">
-                <label for="taRequested">Number of TA Requested:</label>
-                <input type="number" id="taRequested" name="taRequested" min="1" max="25">
-            </div>
-            <div class="form-group">
-                <label for="hoursRequested">Number of hours:</label>
-                <input type="number" id="hoursRequested" name="hoursRequested" min="1" max="8">
-            </div>
-            <div class="form-group">
-                <label for="from">From:</label>
-                <input type="text" id="from" name="from">
-            </div>
-            <div class="form-group">
-                <label for="to">To:</label>
-                <input type="text" id="to" name="to">
-            </div>
-            <div class="add-button-container">
-                <button type="button" class="button" onclick="addItem()">Add</button>
-                <br>
-                <br>
-        
-                <div class="form-container"style="width: 800px; margin: 0 auto; padding: 20px;">
-                    <h2>Confirmation Details</h2>
-                    <table id="RequestConfirmation" style="margin: 0 auto;">
-                        <thead>
-                            <tr>
-                                <th>Requested By</th>
-                                <th>Date from</th>
-                                <th>Date to</th>
-                                <th>Task</th>
-                                <th>TA</th>
-                                <th>Hours</th>
-                                <th>Additional Info</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- Rows will be added here dynamically -->
-                        </tbody>
-                <!-- Rows will be added here dynamically -->
-            </tbody>
-        </table>
-        <div class="button-container">
-            <button type="button" class="button" onclick="confirmItems()">Confirm</button>
+        <div class="form-container" style="width: 1000px; margin: 0 auto; padding: 20px;">
+            <form id="AllocationRequest" name="AllocationRequest" onsubmit="submitForm(event)">
+                <div class="form-group">
+                    <label for="requester">Requester:</label>
+                    <input type="text" id="requester" name="requester">
+                </div>
+                <div class="form-group">
+                    <label for="task">Task:</label>
+                    <input type="text" id="task" name="task">
+                </div>
+                <div class="form-group">
+                    <label for="additionalInfo">Additional Information:</label>
+                    <textarea id="additionalInfo" name="additionalInfo" rows="4" cols="50"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="taRequested">Number of TA Requested:</label>
+                    <input type="number" id="taRequested" name="taRequested" min="1" max="25">
+                </div>
+                <div class="form-group">
+                    <label for="hoursRequested">Number of hours:</label>
+                    <input type="number" id="hoursRequested" name="hoursRequested" min="1" max="8">
+                </div>
+                <div class="form-group">
+                    <label for="from">From:</label>
+                    <input type="text" id="from" name="from">
+                </div>
+                <div class="form-group">
+                    <label for="to">To:</label>
+                    <input type="text" id="to" name="to">
+                </div>
+                <div class="add-button-container">
+                    <button type="button" class="button" onclick="addItem()">Add</button>
+                    <br><br>
+                    <div class="form-container" style="width: 800px; margin: 0 auto; padding: 20px;">
+                        <h2>Confirmation Details</h2>
+                        <table id="RequestConfirmation" style="margin: 0 auto;">
+                            <thead>
+                                <tr>
+                                    <th>Requested By</th>
+                                    <th>Date from</th>
+                                    <th>Date to</th>
+                                    <th>Task</th>
+                                    <th>TA</th>
+                                    <th>Hours</th>
+                                    <th>Additional Info</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Rows will be added here dynamically -->
+                            </tbody>
+                        </table>
+                        <div class="button-container">
+                            <button type="button" class="button" onclick="confirmItems()">Confirm</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
         </div>
-    </div>
     </main>
 
     <footer>
@@ -104,7 +103,7 @@
                 .on("change", function() {
                     from.datepicker("option", "maxDate", getDate(this));
                 });
-    
+
             function getDate(element) {
                 var date;
                 try {
@@ -114,133 +113,54 @@
                 }
                 return date;
             }
-    
-            $("#showTable").on("click", async function() {
-                var fromDate = from.datepicker("getDate");
-                var toDate = to.datepicker("getDate");
-    
-                if (fromDate && toDate) {
-                    var fromDateString = $.datepicker.formatDate(dateFormat, fromDate);
-                    var toDateString = $.datepicker.formatDate(dateFormat, toDate);
-    
-                    try {
-                        // Replace with your actual API endpoint for fetching availability
-                        const response = await fetch(`https://d6lc96ph7c.execute-api.ca-central-1.amazonaws.com/prod?from=${fromDateString}&to=${toDateString}`, {
-                            method: 'GET',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'x-api-key': 'Nvqc4C0wiA4BBFoKpbAhD4y2kcs3ioew8ErzzQ39' // Your actual API key for fetching availability
-                            }
-                        });
-    
-                        // Check if the response is okay
-                        if (!response.ok) {
-                            throw new Error('Failed to fetch availability');
-                        }
-    
-                        // Parse response JSON
-                        const availabilityData = await response.json();
-    
-                        // Populate the table with the availability data
-                        var tableBody = $("#availabilityTable tbody");
-                        tableBody.empty(); // Clear previous rows
-    
-                        availabilityData.forEach(item => {
-                            var row = `<tr>
-                                <td>${item.date}</td>
-                                <td>${item.availablePeople}</td>
-                            </tr>`;
-                            tableBody.append(row);
-                        });
-    
-                        $("#availabilityTable").show();
-                    } catch (error) {
-                        // Handle errors
-                        alert('Error: ' + error.message);
-                    }
-                } else {
-                    alert("Please select both 'From' and 'To' dates.");
-                }
-            });
-    
-            $("#sendEmail").on("click", async function() {
-                // Get form values
+
+            window.addItem = function() {
                 var requester = $("#requester").val();
                 var task = $("#task").val();
+                var additionalInfo = $("#additionalInfo").val();
                 var taRequested = $("#taRequested").val();
                 var hoursRequested = $("#hoursRequested").val();
-                var from = $("#from").val();
-                var to = $("#to").val();
-                var additionalInfo = $("#additionalInfo").val();
-    
-                // Construct email content
-                var emailContent = `New allocation request from ${requester} for task ${task}.\nDate: ${from} to ${to}\nAdditional Info: ${additionalInfo}`;
-    
-                try {
-                    // Replace with your actual Lambda/API endpoint for sending email
-                    const response = await fetch('https://d6lc96ph7c.execute-api.ca-central-1.amazonaws.com/prod/send-email', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'x-api-key': 'Nvqc4C0wiA4BBFoKpbAhD4y2kcs3ioew8ErzzQ39' // Your actual API key for sending email
-                        },
-                        body: JSON.stringify({
-                            requester: requester,
-                            task: task,
-                            from: from,
-                            to: to,
-                            additionalInfo: additionalInfo
-                        })
-                    });
-    
-                    // Check if the response is okay
-                    if (!response.ok) {
-                        throw new Error('Failed to send email');
-                    }
-    
-                    // Show success message
-                    alert('Email sent successfully!');
-                    window.location.href = 'thankyou.html'; // Redirect to thankyou.html
-                } catch (error) {
-                    // Handle errors
-                    alert('Error: ' + error.message);
-                    window.location.href = 'thankyou.html'; // Redirect to thankyou.html
+                var fromDate = $("#from").val();
+                var toDate = $("#to").val();
+
+                // Check if the form fields are not empty
+                if (requester && task && additionalInfo && taRequested && hoursRequested && fromDate && toDate) {
+                    // Create new row for the table
+                    var newRow = `
+                        <tr>
+                            <td>${requester}</td>
+                            <td>${fromDate}</td>
+                            <td>${toDate}</td>
+                            <td>${task}</td>
+                            <td>${taRequested}</td>
+                            <td>${hoursRequested}</td>
+                            <td>${additionalInfo}</td>
+                        </tr>
+                    `;
+
+                    // Append the new row to the table
+                    $("#RequestConfirmation tbody").append(newRow);
+                } else {
+                    alert("Please fill in all fields before adding.");
                 }
-            });
+            }
+
+            window.confirmItems = function() {
+                // Save table data to localStorage
+                var tableData = [];
+                $("#RequestConfirmation tbody tr").each(function() {
+                    var row = [];
+                    $(this).find('td').each(function() {
+                        row.push($(this).text());
+                    });
+                    tableData.push(row);
+                });
+                localStorage.setItem('tableData', JSON.stringify(tableData));
+
+                // Redirect to confirmation page
+                window.location.href = 'thankyou.html';
+            }
         });
-
-        function confirmItems() {
-            // Example functionality for confirmItems
-            alert("Request sent. Thank you");
-            // You can add further logic here to handle form data or perform other actions
-        }
-
-        function addItem() {
-            // Get form values
-            var requester = $("#requester").val();
-            var task = $("#task").val();
-            var additionalInfo = $("#additionalInfo").val();
-            var taRequested = $("#taRequested").val();
-            var hoursRequested = $("#hoursRequested").val();
-            var from = $("#from").val();
-            var to = $("#to").val();
-
-            // Create new row for the table
-            var newRow = `
-                <tr>
-                    <td>${requester}</td>
-                    <td>${from}</td>
-                    <td>${to}</td>
-                    <td>${task}</td>
-                    <td>${taRequested}</td>
-                    <td>${hoursRequested}</td>
-                    <td>${additionalInfo}</td>
-                </tr>
-            `;
-
-            // Append the new row to the table
-            $("#RequestConfirmation tbody").append(newRow);
-        }
     </script>
 </body>
 </html>
