@@ -33,7 +33,9 @@
             </tbody>
         </table>
     </div>
-    
+    <br>
+    <button class="logout-button" onclick="logout()">Log Out</button>
+
     <footer>
         <p>&copy; 2024 Lionbridge Games. All rights reserved.</p>
     </footer>
@@ -62,6 +64,13 @@
                 localStorage.removeItem('tableData');
             }
         });
+        // Log Out function
+        function logout() {
+            // Perform logout actions here (e.g., clear session, redirect to login page)
+            alert('Logging out...');
+            // Example: Redirect to login page (replace with actual login URL)
+            window.location.href = 'index.html';
+        }
     </script>
 </body>
 </html>

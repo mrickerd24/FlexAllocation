@@ -46,6 +46,18 @@ header {
     transition: background-color 0.3s ease;
     font-family: 'Arial Rounded MT Bold', sans-serif; 
 }
+.logout-button {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #f89829;
+    color: white;
+    text-decoration: none; /* Remove underline */
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    font-family: 'Arial Rounded MT Bold', sans-serif; 
+}
 
 .button:hover {
     background-color: #f89829;
