@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Allocation Request</title>
+    <title>Time Off Request</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -11,74 +11,79 @@
 </head>
 <body>
     <header>
-        <div class="logo-image"></div> 
+        <div class="logo-image"></div>
+        <button onclick="window.location.href='index.html'" class="button">Log Out</button>
     </header>
 
     <main>
-    <hr width="300px" size="2" color="#f89829">
-    <h1 style="text-align: center;">Allocation Request</h1>
-    <hr width="500px" size="2" color="#f89829">
+        <hr width="300px" size="2" color="#f89829">
+        <h1 style="text-align: center;">Time Off Request</h1>
+        <hr width="500px" size="2" color="#f89829">
 
-    <div class="form-container" style="width: 1000px; margin: 0 auto; padding: 20px;">
-        <form id="AllocationRequest" name="AllocationRequest" onsubmit="submitForm(event)">
-            <div class="form-group">
-                <label for="requester">Requester:</label>
-                <input type="text" id="requester" name="requester">
-            </div>
-            <div class="form-group">
-                <label for="task">Task:</label>
-                <input type="text" id="task" name="task">
-            </div>
-            <div class="form-group">
-                <label for="additionnalInfo">Additional Information:</label>
-                <textarea id="additionnalInfo" name="additionnalInfo" rows="4" cols="50"></textarea>
-            </div>
-            <div class="form-group">
-                <label for="taRequested">Number of TA Requested:</label>
-                <input type="number" id="taRequested" name="taRequested" min="1" max="25">
-            </div>
-            <div class="form-group">
-                <label for="hoursRequested">Number of hours:</label>
-                <input type="number" id="hoursRequested" name="hoursRequested" min="1" max="8">
-            </div>
-            <div class="form-group">
-                <label for="from">From:</label>
-                <input type="text" id="from" name="from">
-            </div>
-            <div class="form-group">
-                <label for="to">To:</label>
-                <input type="text" id="to" name="to">
-            </div>
-            <div class="add-button-container">
-                <button type="button" class="button" onclick="addItem()">Add</button>
-            </div>
-        </form>
-        
-        <br><br>
-        
-        <div class="form-container" style="width: 800px; margin: 0 auto; padding: 20px;">
-            <h2>Confirmation Details</h2>
-            <table id="RequestConfirmation" style="margin: 0 auto;">
-                <thead>
-                    <tr>
-                        <th>Requested By</th>
-                        <th>Date from</th>
-                        <th>Date to</th>
-                        <th>Task</th>
-                        <th>TA</th>
-                        <th>Hours</th>
-                        <th>Additional Info</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Rows will be added here dynamically -->
-                </tbody>
-            </table>
-            <div class="button-container">
-                <button type="button" class="button" onclick="confirmItems()">Confirm</button>
+        <div class="form-container" style="width: 1000px; margin: 0 auto; padding: 20px;">
+            <form id="TimeOffRequest" name="TimeOffRequest" onsubmit="submitForm(event)">
+                <div class="form-group">
+                    <label for="name">Name:</label>
+                    <select id="name" name="name">
+                        <option value="John Doe">John Doe</option>
+                        <option value="Jane Smith">Jane Smith</option>
+                        <!-- Add more options as needed -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="motive">Motive:</label>
+                    <select id="motive" name="motive">
+                        <option value="Vacation">Vacation</option>
+                        <option value="Sick Leave">Sick Leave</option>
+                        <option value="Personal Leave">Personal Leave</option>
+                        <!-- Add more options as needed -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="timeFrame">Time frame:</label>
+                    <select id="timeFrame" name="timeFrame">
+                        <option value="Partial Morning">Partial day - Morning</option>
+                        <option value="Partial Afternoon">Partial day - Afternoon</option>
+                        <option value="Entire Day">Entire Day</option>
+                        <option value="Multiple Days">Multiple days</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="from">From:</label>
+                    <input type="text" id="from" name="from">
+                </div>
+                <div class="form-group" id="to-container" style="display: none;">
+                    <label for="to">To:</label>
+                    <input type="text" id="to" name="to">
+                </div>
+                <div class="add-button-container">
+                    <button type="button" class="button" onclick="addItem()">Add</button>
+                </div>
+            </form>
+            
+            <br><br>
+            
+            <div class="form-container" style="width: 800px; margin: 0 auto; padding: 20px;">
+                <h2>Confirmation Details</h2>
+                <table id="RequestConfirmation" style="margin: 0 auto;">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Motive</th>
+                            <th>Time Frame</th>
+                            <th>Date From</th>
+                            <th>Date To</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Rows will be added here dynamically -->
+                    </tbody>
+                </table>
+                <div class="button-container">
+                    <button type="button" class="button" onclick="confirmItems()">Confirm</button>
+                </div>
             </div>
         </div>
-    </div>
     </main>
 
     <footer>
@@ -115,115 +120,53 @@
                 }
                 return date;
             }
-    
-            $("#showTable").on("click", async function() {
-                var fromDate = from.datepicker("getDate");
-                var toDate = to.datepicker("getDate");
-    
-                if (fromDate && toDate) {
-                    var fromDateString = $.datepicker.formatDate(dateFormat, fromDate);
-                    var toDateString = $.datepicker.formatDate(dateFormat, toDate);
-    
-                    try {
-                        const response = await fetch(`https://d6lc96ph7c.execute-api.ca-central-1.amazonaws.com/prod?from=${fromDateString}&to=${toDateString}`, {
-                            method: 'GET',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'x-api-key': 'Nvqc4C0wiA4BBFoKpbAhD4y2kcs3ioew8ErzzQ39'
-                            }
-                        });
-    
-                        if (!response.ok) {
-                            throw new Error('Failed to fetch availability');
-                        }
-    
-                        const availabilityData = await response.json();
-                        var tableBody = $("#availabilityTable tbody");
-                        tableBody.empty();
-    
-                        availabilityData.forEach(item => {
-                            var row = `<tr>
-                                <td>${item.date}</td>
-                                <td>${item.availablePeople}</td>
-                            </tr>`;
-                            tableBody.append(row);
-                        });
-    
-                        $("#availabilityTable").show();
-                    } catch (error) {
-                        alert('Error: ' + error.message);
-                    }
+
+            $("#timeFrame").on("change", function() {
+                if ($(this).val() === "Multiple Days") {
+                    $("#to-container").show();
                 } else {
-                    alert("Please select both 'From' and 'To' dates.");
-                }
-            });
-    
-            $("#sendEmail").on("click", async function() {
-                var requester = $("#requester").val();
-                var task = $("#task").val();
-                var taRequested = $("#taRequested").val();
-                var hoursRequested = $("#hoursRequested").val();
-                var from = $("#from").val();
-                var to = $("#to").val();
-                var additionalInfo = $("#additionnalInfo").val();
-    
-                var emailContent = `New allocation request from ${requester} for task ${task}.\nDate: ${from} to ${to}\nAdditional Info: ${additionalInfo}`;
-    
-                try {
-                    const response = await fetch('https://d6lc96ph7c.execute-api.ca-central-1.amazonaws.com/prod/send-email', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'x-api-key': 'Nvqc4C0wiA4BBFoKpbAhD4y2kcs3ioew8ErzzQ39'
-                        },
-                        body: JSON.stringify({
-                            requester: requester,
-                            task: task,
-                            from: from,
-                            to: to,
-                            additionalInfo: additionalInfo
-                        })
-                    });
-    
-                    if (!response.ok) {
-                        throw new Error('Failed to send email');
-                    }
-    
-                    alert('Email sent successfully!');
-                    window.location.href = 'thankyou.html';
-                } catch (error) {
-                    alert('Error: ' + error.message);
-                    window.location.href = 'thankyou.html';
+                    $("#to-container").hide();
                 }
             });
         });
-        
-        function confirmItems() {
-            alert("Request sent. Thank you");
-        }
-        
+
         function addItem() {
-            var requester = $("#requester").val();
-            var task = $("#task").val();
-            var additionalInfo = $("#additionnalInfo").val();
-            var taRequested = $("#taRequested").val();
-            var hoursRequested = $("#hoursRequested").val();
+            var name = $("#name").val();
+            var motive = $("#motive").val();
+            var timeFrame = $("#timeFrame").val();
             var from = $("#from").val();
             var to = $("#to").val();
-    
+
             var newRow = `
                 <tr>
-                    <td>${requester}</td>
+                    <td>${name}</td>
+                    <td>${motive}</td>
+                    <td>${timeFrame}</td>
                     <td>${from}</td>
                     <td>${to}</td>
-                    <td>${task}</td>
-                    <td>${taRequested}</td>
-                    <td>${hoursRequested}</td>
-                    <td>${additionalInfo}</td>
                 </tr>
             `;
-    
+
             $("#RequestConfirmation tbody").append(newRow);
+        }
+
+        function confirmItems() {
+            var requestSummary = [];
+
+            $("#RequestConfirmation tbody tr").each(function() {
+                var row = $(this).children("td");
+                var item = {
+                    name: row.eq(0).text(),
+                    motive: row.eq(1).text(),
+                    timeFrame: row.eq(2).text(),
+                    from: row.eq(3).text(),
+                    to: row.eq(4).text()
+                };
+                requestSummary.push(item);
+            });
+
+            localStorage.setItem('requestSummary', JSON.stringify(requestSummary));
+            window.location.href = 'thankyouflex.html';
         }
     </script>
 </body>
