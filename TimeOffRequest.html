@@ -168,6 +168,51 @@
             localStorage.setItem('requestSummary', JSON.stringify(requestSummary));
             window.location.href = 'thankyouflex.html';
         }
+
+        async function submitForm(event) {
+            event.preventDefault();
+
+            const name = $("#name").val();
+            const motive = $("#motive").val();
+            const timeFrame = $("#timeFrame").val();
+            const from = $("#from").val();
+            const to = $("#to").val();
+            const requester = 'flex2024@lballocations.com'; // This should be dynamic if needed
+
+            const requestData = {
+                date: from, // Assuming 'from' is the date for the example
+                availablePeople: 25, // Assuming you need to adjust this logic
+                name,
+                motive,
+                timeFrame,
+                from,
+                to,
+                requester
+            };
+
+            try {
+                const response = await fetch('https://d6lc96ph7c.execute-api.ca-central-1.amazonaws.com/prod', { // Your actual API Gateway URL
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestData)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    alert('Time off request processed successfully!');
+                    // Optionally, clear the form or redirect to another page
+                } else {
+                    console.error('Error:', data.message);
+                    alert('Failed to process time off request: ' + data.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to submit request. Please try again later.');
+            }
+        }
     </script>
 </body>
 </html>
