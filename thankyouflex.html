@@ -42,5 +42,28 @@
     <footer>
         <p>&copy; 2024 Lionbridge Games. All rights reserved.</p>
     </footer>
+
+    <script>
+        // JavaScript to populate the table with stored confirmation data
+        window.onload = function() {
+            var requestSummary = JSON.parse(localStorage.getItem('requestSummary')) || [];
+            var tableBody = document.querySelector("#confirmationTable tbody");
+
+            requestSummary.forEach(function(item) {
+                var newRow = `
+                    <tr>
+                        <td>${item.name}</td>
+                        <td>${item.from}</td>
+                        <td>${item.to}</td>
+                        <td>${item.motive}</td>
+                        <td>${item.ta || 'N/A'}</td> <!-- Add any additional fields if necessary -->
+                        <td>${item.hours || 'N/A'}</td> <!-- Assuming 'hours' was part of the stored data -->
+                        <td>${item.additionalInfo || 'N/A'}</td> <!-- Assuming 'additionalInfo' was part of the stored data -->
+                    </tr>
+                `;
+                tableBody.innerHTML += newRow;
+            });
+        }
+    </script>
 </body>
 </html>
