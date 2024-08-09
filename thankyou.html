@@ -34,7 +34,7 @@
         </table>
     </div>
     <br>
-    <button class="logout-button" onclick="window.location.href='index.html'">Log Out</button>
+    <button class="logout-button" id="logoutButton">Log Out</button>
 
     <footer>
         <p>&copy; 2024 Lionbridge Games. All rights reserved.</p>
@@ -63,6 +63,11 @@
                 // Clear the stored data
                 localStorage.removeItem('tableData');
             }
+        });
+
+        // Redirect on button click
+        document.getElementById('logoutButton').addEventListener('click', function() {
+            window.location.href = 'index.html';
         });
     </script>
 </body>
