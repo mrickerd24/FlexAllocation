@@ -41,7 +41,7 @@
     </footer>
     
     <script>
-        // Retrieve table data from localStorage
+        // Populate table data from localStorage
         document.addEventListener('DOMContentLoaded', function() {
             const tableData = JSON.parse(localStorage.getItem('tableData'));
             if (tableData) {
@@ -64,11 +64,10 @@
                 localStorage.removeItem('tableData');
             }
         });
+
         // Log Out function
         function logout() {
             // Perform logout actions here (e.g., clear session, redirect to login page)
-            alert('Logging out...');
-            // Example: Redirect to login page (replace with actual login URL)
             window.location.href = 'index.html';
         }
     </script>
