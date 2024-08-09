@@ -9,59 +9,38 @@
 <body>
     <header>
         <div class="logo-image"></div>
-
     </header>
-
-    <main>
-        <hr width="300px" size="2" color="#f89829">
-        <h1 style="text-align: center;">Thank You</h1>
-        <hr width="500px" size="2" color="#f89829">
-
-        <div class="form-container" style="width: 1000px; margin: 0 auto; padding: 20px;">
-            <h2>Request Summary</h2>
-            <table id="RequestSummary" style="margin: 0 auto;">
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Motive</th>
-                        <th>Time Frame</th>
-                        <th>Date From</th>
-                        <th>Date To</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Rows will be added here dynamically -->
-                </tbody>
-            </table>
-            <br>
-            <br>
-            <button class="logout-button" onclick="logout()">Log Out</button>
-        </div>
-    </main>
+    <hr width="300px" size="2" color="#f89829">
+    <h1>Thank You!</h1>
+    <hr width="500px" size="2" color="#f89829">
+    
+    <div class="form-container">
+        <h2>Confirmation Details</h2>
+        <table id="confirmationTable">
+            <thead>
+                <tr>
+                    <th>Requested By</th>
+                    <th>Date From</th>
+                    <th>Date To</th>
+                    <th>Task</th>
+                    <th>TA</th>
+                    <th>Hours</th>
+                    <th>Additional Info</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Rows will be populated here -->
+            </tbody>
+        </table>
+    </div>
+    <br>
+    <!-- Form to handle redirection -->
+    <form action="index.html" method="get">
+        <button type="submit" class="logout-button">Log Out</button>
+    </form>
 
     <footer>
         <p>&copy; 2024 Lionbridge Games. All rights reserved.</p>
     </footer>
-
-    <script>
-        // Retrieve the data from localStorage and populate the table
-        const requestSummary = JSON.parse(localStorage.getItem('requestSummary')) || [];
-        const tbody = document.querySelector('#RequestSummary tbody');
-
-        requestSummary.forEach(item => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${item.name}</td>
-                <td>${item.motive}</td>
-                <td>${item.timeFrame}</td>
-                <td>${item.from}</td>
-                <td>${item.to}</td>
-            `;
-            tbody.appendChild(row);
-        });
-
-        // Clear the localStorage after displaying the summary
-        localStorage.removeItem('requestSummary');
-    </script>
 </body>
 </html>
