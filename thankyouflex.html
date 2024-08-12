@@ -44,24 +44,24 @@
     </footer>
 
     <script>
-        // JavaScript to populate the table with stored confirmation data
         window.onload = function() {
+            // Retrieve the data from localStorage using correct key
             var requestSummary = JSON.parse(localStorage.getItem('requestSummary')) || [];
-            var tableBody = document.querySelector("#confirmationTable tbody");
 
-            requestSummary.forEach(function(item) {
-                var newRow = `
-                    <tr>
-                        <td>${item.name}</td>
-                        <td>${item.from}</td>
-                        <td>${item.to}</td>
-                        <td>${item.motive}</td>
-                        <td>${item.ta || 'N/A'}</td> <!-- Add any additional fields if necessary -->
-                        <td>${item.hours || 'N/A'}</td> <!-- Assuming 'hours' was part of the stored data -->
-                        <td>${item.additionalInfo || 'N/A'}</td> <!-- Assuming 'additionalInfo' was part of the stored data -->
-                    </tr>
+            // Populate the table with the retrieved data
+            var tbody = document.querySelector("#confirmationTable tbody");
+            requestSummary.forEach(function(row) {
+                var tr = document.createElement("tr");
+                tr.innerHTML = `
+                    <td>${row.name}</td>
+                    <td>${row.from}</td>
+                    <td>${row.to}</td>
+                    <td>${row.task}</td>
+                    <td>${row.ta}</td>
+                    <td>${row.hours || ''}</td>
+                    <td>${row.additionalInfo}</td>
                 `;
-                tableBody.innerHTML += newRow;
+                tbody.appendChild(tr);
             });
         }
     </script>

@@ -143,13 +143,17 @@
                 // Save table data to localStorage
                 var tableData = [];
                 $("#RequestConfirmation tbody tr").each(function() {
-                    var row = [];
-                    $(this).find('td').each(function() {
-                        row.push($(this).text());
-                    });
+                    var row = {
+            name: $(this).find('td:eq(0)').text(),
+            from: $(this).find('td:eq(1)').text(),
+            to: $(this).find('td:eq(2)').text(),
+            task: $(this).find('td:eq(3)').text(),
+            ta: $(this).find('td:eq(4)').text(),
+            additionalInfo: $(this).find('td:eq(5)').text()
+        };
                     tableData.push(row);
                 });
-                localStorage.setItem('tableData', JSON.stringify(tableData));
+                localStorage.setItem('requestSummary', JSON.stringify(tableData)); // Fixed key
 
                 // Get requester and task for email
                 var requester = $("#requester").val();
