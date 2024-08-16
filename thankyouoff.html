@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thank You</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <div class="logo-image"></div>
+    </header>
+    <hr width="300px" size="2" color="#f89829">
+    <h1>Thank You!</h1>
+    <hr width="500px" size="2" color="#f89829">
+    
+    <div class="form-container">
+        <h2>Confirmation Details</h2>
+        <table id="confirmationTable">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Motive</th>
+                    <th>Time Frame</th>
+                    <th>Date From</th>
+                    <th>Date To</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Rows will be populated here -->
+            </tbody>
+        </table>
+    </div>
+    <br>
+    <!-- Form to handle redirection -->
+    <form action="index.html" method="get">
+        <button type="submit" class="logout-button">Log Out</button>
+    </form>
+
+    <footer>
+        <p>&copy; 2024 Lionbridge Games. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // JavaScript to populate the table with stored confirmation data
+        window.onload = function() {
+            var requestSummary = JSON.parse(localStorage.getItem('requestSummary')) || [];
+            var tableBody = document.querySelector("#confirmationTable tbody");
+
+            requestSummary.forEach(function(item) {
+                var newRow = `
+                    <tr>
+                        <td>${item.name}</td>
+                        <td>${item.motive}</td>
+                        <td>${item.timeFrame}</td>
+                        <td>${item.from}</td>
+                        <td>${item.to || 'N/A'}</td> <!-- If "To" is empty, show "N/A" -->
+                    </tr>
+                `;
+                tableBody.innerHTML += newRow;
+            });
+        }
+    </script>
+</body>
+</html>
