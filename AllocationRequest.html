@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
-    <script type="module" src="./AllocationRequest/sesMailer.mjs"></script>
 </head>
 <body>
     <header>
@@ -219,8 +218,21 @@
             var taRequested = $("#taRequested").val();
 
             try {
-                const { sendEmail } = await import('./esMailer.js');
-                await sendEmail(requester, task, dates, additionalInfo, taRequested);
+                const response = await fetch('https://d6lc96ph7c.execute-api.ca-central-1.amazonaws.com/prod/sendEmail', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        requester,
+                        task,
+                        dates,
+                        additionalInfo,
+                        taRequested
+                    })
+                });
+
+                const result = await response.json();
                 alert("Confirmation email sent successfully.");
             } catch (error) {
                 console.error("Error sending email:", error);
