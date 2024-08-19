@@ -5,30 +5,12 @@ const dynamoDb = new DynamoDB.DocumentClient({ region: 'ca-central-1' });
 const ses = new SES({ region: 'ca-central-1' });
 
 export const handler = async (event) => {
-    console.log("Received event:", JSON.stringify(event, null, 2));
+    const requestData = JSON.parse(event.body);
+    const { requester, task, dates, additionalInfo, taRequested } = requestData;
 
-    if (!event.body) {
-        return {
-            statusCode: 400,
-            body: JSON.stringify({ message: "Missing request body" }),
-        };
-    }
-
-    let requestData;
-    try {
-        requestData = JSON.parse(event.body);
-    } catch (error) {
-        console.error('Error parsing JSON:', error);
-        return {
-            statusCode: 400,
-            body: JSON.stringify({ message: "Invalid JSON format" }),
-        };
-    }
-
-    const { requester, task, dates } = requestData;
-
-    if (!requester || !task || !dates || !Array.isArray(dates) || dates.length === 0) {
-        console.error('Missing required fields:', { requester, task, dates });
+    // Validate required fields
+    if (!requester || !task || !dates || !Array.isArray(dates) || dates.length === 0 || !additionalInfo || taRequested === undefined) {
+        console.error('Missing or invalid required fields:', { requester, task, dates, additionalInfo, taRequested });
         return {
             statusCode: 400,
             body: JSON.stringify({ message: "Missing or invalid required fields" }),
@@ -36,50 +18,27 @@ export const handler = async (event) => {
     }
 
     try {
+        // Iterate through the dates array and update the DynamoDB table for each date
         for (const date of dates) {
-            // Step 1: Get the current value of availablePeople
-            const getParams = {
+            const params = {
                 TableName: 'Availabilitytable',
                 Key: { date },
-            };
-
-            const result = await dynamoDb.get(getParams).promise();
-            let availablePeople = 22; // Default value
-
-            if (result.Item && result.Item.availablePeople !== undefined) {
-                availablePeople = result.Item.availablePeople;
-                console.log(`Date ${date} exists with availablePeople: ${availablePeople}`);
-            } else {
-                console.log(`Date ${date} does not exist. Initializing with default value: ${availablePeople}`);
-            }
-
-            // Step 2: Prevent decrementing if availablePeople is less than or equal to zero
-            if (availablePeople <= 0) {
-                console.log(`No available people left for ${date}. Skipping update.`);
-                continue; // Skip to the next date
-            }
-
-            // Step 3: Update the value of availablePeople
-            const updateParams = {
-                TableName: 'Availabilitytable',
-                Key: { date },
-                UpdateExpression: 'SET availablePeople = :newValue',
-                ExpressionAttributeValues: { ':newValue': availablePeople - 1 },
+                UpdateExpression: 'ADD availablePeople :decrement',
+                ExpressionAttributeValues: { ':decrement': -1 },
                 ReturnValues: 'UPDATED_NEW',
             };
-
-            const updateResult = await dynamoDb.update(updateParams).promise();
-            console.log(`Update result for ${date}:`, updateResult);
+            await dynamoDb.update(params).promise();
         }
 
-        await sendEmail(requester, task);
+        // Send email
+        await sendEmail(requester, task, dates, additionalInfo, taRequested);
 
         return {
             statusCode: 200,
             body: JSON.stringify({ message: "Request processed successfully" }),
         };
     } catch (error) {
-        console.error('Error processing request:', error);
+        console.error('Error:', error);
         return {
             statusCode: 500,
             body: JSON.stringify({
@@ -90,22 +49,27 @@ export const handler = async (event) => {
     }
 };
 
-async function sendEmail(requester, task) {
+async function sendEmail(requester, task, dates, additionalInfo, taRequested) {
     const emailParams = {
         Destination: {
-            ToAddresses: ['flex2024@lballocations.com']
+            ToAddresses: ['flex2024@lballocations.com'] // Replace with recipient email address
         },
         Message: {
             Body: {
                 Text: {
-                    Data: `New allocation request from ${requester} for task ${task}.`
+                    Data: `Subject: Allocation request\n\n` +
+                          `Requester: ${requester}\n` +
+                          `Dates: ${dates.join(', ')}\n` +
+                          `Task: ${task}\n` +
+                          `Additional Information: ${additionalInfo}\n` +
+                          `Number of TA's Requested: ${taRequested}`
                 }
             },
             Subject: {
-                Data: 'New Allocation Request'
+                Data: 'Allocation request'
             }
         },
-        Source: 'noreply@lballocations.com'
+        Source: 'noreply@lballocations.com' // Replace with sender email address
     };
 
     try {

@@ -1,5 +1,5 @@
 const AWS = require('aws-sdk');
-const dynamodb = new AWS.DynamoDB.DocumentClient();
+const dynamodb = new AWS.DynamoDB.DocumentClient({ region: 'ca-central-1' });
 
 exports.handler = async (event) => {
     // Log the event object to check incoming query parameters
@@ -23,14 +23,23 @@ exports.handler = async (event) => {
 
     try {
         const result = await dynamodb.get(params).promise();
-        const availableTA = result.Item ? result.Item.availableTA : 22; // Default to 22 if no result
+        const defaultAvailableTA = 22; // Default value
+
+        // Convert availableTA to a number
+        const currentAvailableTA = result.Item ? Number(result.Item.availableTA) : 0;
+
+        // Calculate the available TA based on the default value and current value in the table
+        const adjustedAvailableTA = defaultAvailableTA + currentAvailableTA;
+
+        // Format the response message
+        const responseMessage = `${adjustedAvailableTA} Available`;
 
         console.log('Result:', JSON.stringify(result));
-        console.log('Available TA:', availableTA);
+        console.log('Available TA:', responseMessage);
 
         return {
             statusCode: 200,
-            body: JSON.stringify({ availableTA }),
+            body: JSON.stringify({ message: responseMessage }),
         };
     } catch (error) {
         console.error('Error:', error);

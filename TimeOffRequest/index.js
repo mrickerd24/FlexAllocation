@@ -43,26 +43,45 @@ exports.handler = async (event) => {
         };
     }
 
-    // Process each date
-    for (const date of dates) {
-        const params = {
-            TableName: 'Availabilitytable',
-            Key: { date },
-            UpdateExpression: 'ADD availableTA :decrement',
-            ExpressionAttributeValues: { ':decrement': -1 },
-            ReturnValues: 'UPDATED_NEW'
+    // Validate 'from' and 'to' dates
+    if (!from || !to) {
+        console.error('Invalid or missing from/to dates');
+        return {
+            statusCode: 400,
+            body: JSON.stringify({ message: 'Missing from or to date' })
         };
+    }
 
-        try {
-            const result = await dynamodb.update(params).promise();
-            console.log(`Updated availability for ${date}:`, result);
-        } catch (error) {
-            console.error(`Error updating availability for ${date}:`, error);
-            return {
-                statusCode: 500,
-                body: JSON.stringify({ message: 'Failed to update availability', error: error.message })
+    try {
+        const allDates = getDatesInRange(from, to);
+
+        // Process each date in the range
+        for (const date of allDates) {
+            const params = {
+                TableName: 'Availabilitytable',
+                Key: { date },
+                UpdateExpression: 'ADD availableTA :decrement',
+                ExpressionAttributeValues: { ':decrement': -1 },
+                ReturnValues: 'UPDATED_NEW'
             };
+
+            try {
+                const result = await dynamodb.update(params).promise();
+                console.log(`Updated availability for ${date}:`, result);
+            } catch (error) {
+                console.error(`Error updating availability for ${date}:`, error);
+                return {
+                    statusCode: 500,
+                    body: JSON.stringify({ message: 'Failed to update availability', error: error.message })
+                };
+            }
         }
+    } catch (error) {
+        console.error('Error generating date range:', error);
+        return {
+            statusCode: 500,
+            body: JSON.stringify({ message: 'Failed to process date range', error: error.message })
+        };
     }
 
     return {
@@ -70,3 +89,17 @@ exports.handler = async (event) => {
         body: JSON.stringify({ message: 'Time off request processed successfully' })
     };
 };
+
+// Utility function to generate all dates between 'from' and 'to'
+function getDatesInRange(startDate, endDate) {
+    const dates = [];
+    const currentDate = new Date(startDate);
+    endDate = new Date(endDate);
+
+    while (currentDate <= endDate) {
+        dates.push(currentDate.toISOString().split('T')[0]);
+        currentDate.setDate(currentDate.getDate() + 1);
+    }
+
+    return dates;
+}
