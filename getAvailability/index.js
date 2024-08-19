@@ -2,7 +2,17 @@ const AWS = require('aws-sdk');
 const dynamodb = new AWS.DynamoDB.DocumentClient();
 
 exports.handler = async (event) => {
-    const date = event.queryStringParameters.date;
+    // Log the event object to check incoming query parameters
+    console.log('Event:', JSON.stringify(event));
+
+    const date = event.queryStringParameters ? event.queryStringParameters.date : null;
+
+    if (!date) {
+        return {
+            statusCode: 400,
+            body: JSON.stringify({ error: 'Date parameter is missing' }),
+        };
+    }
 
     const params = {
         TableName: 'Availabilitytable',
@@ -15,7 +25,7 @@ exports.handler = async (event) => {
         const result = await dynamodb.get(params).promise();
         const availableTA = result.Item ? result.Item.availableTA : 22; // Default to 22 if no result
 
-        console.log('Result:', result);
+        console.log('Result:', JSON.stringify(result));
         console.log('Available TA:', availableTA);
 
         return {

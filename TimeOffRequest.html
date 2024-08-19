@@ -170,16 +170,16 @@
         }
 
         async function submitForm(event) {
-            event.preventDefault();
+    event.preventDefault();
 
-            const name = $("#name").val();
-            const motive = $("#motive").val();
-            const timeFrame = $("#timeFrame").val();
-            const from = $("#from").val();
-            const to = $("#to").val();
-            const requester = 'flex2024@lballocations.com'; // This should be dynamic if needed
+    const name = $("#name").val();
+    const motive = $("#motive").val();
+    const timeFrame = $("#timeFrame").val();
+    const from = $("#from").val();
+    const to = $("#to").val();
+    const requester = 'flex2024@lballocations.com'; // This should be dynamic if needed
 
-            let dates = [];
+    let dates = [];
 
     if (timeFrame === "Multiple Days") {
         let currentDate = new Date(from);
@@ -202,8 +202,8 @@
         requester
     };
     
-    console.log('Request Data:', requestData);
-    
+    console.log('Request Data:', requestData); // Log request data
+
     try {
         const response = await fetch('https://d6lc96ph7c.execute-api.ca-central-1.amazonaws.com/prod', { // Your actual API Gateway URL
             method: 'POST',

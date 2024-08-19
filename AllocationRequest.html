@@ -39,7 +39,7 @@
                 <div class="form-group">
                     <button type="button" class="button" onclick="checkAvailability()">Check Availability</button>
                 </div>
-<br>
+                <br>
                 <!-- New table for displaying TA availability -->
                 <div class="form-container" style="width: 800px; margin: 0 auto; padding: 20px;">
                     <h2>TA Availability</h2>
@@ -55,7 +55,7 @@
                         </tbody>
                     </table>
                 </div>
-<br><br>
+                <br><br>
                 <div class="form-group">
                     <label for="task">Task:</label>
                     <input type="text" id="task" name="task">
@@ -132,23 +132,39 @@
                 return date;
             }
 
-            async function checkAvailability() {
-                const selectedDate = $("#from").val();  // Get the selected date
-
-                if (selectedDate) {
+            window.checkAvailability = async function() {
+                const fromDate = $("#from").val();  // Get the 'From' date
+                const toDate = $("#to").val();      // Get the 'To' date
+                if (fromDate && toDate) {
                     try {
-                        const response = await fetch(`https://<Your-API-Gateway-URL>?date=${selectedDate}`);
+                        // Send the selected date range to your API (Lambda via API Gateway)
+                        const response = await fetch(`https://d6lc96ph7c.execute-api.ca-central-1.amazonaws.com/prod?from=${encodeURIComponent(fromDate)}&to=${encodeURIComponent(toDate)}`);
                         const data = await response.json();
-                        const availableTAs = data.availableTAs || 22; // Default to 22 if not available
-                        $("#TAAvailabilityTable tbody").html(`
-                            <tr>
-                                <td>${selectedDate}</td>
-                                <td>${availableTAs}</td>
-                            </tr>
-                        `);
+
+                        // Assuming the response returns an array of dates and their available TAs
+                        if (data.length > 0) {
+                            let tableRows = '';
+                            data.forEach((dateInfo) => {
+                                tableRows += `
+                                    <tr>
+                                        <td>${dateInfo.date}</td>
+                                        <td>${dateInfo.availableTAs}</td>
+                                    </tr>
+                                `;
+                            });
+
+                            // Update the table with the fetched availability data
+                            $("#TAAvailabilityTable tbody").html(tableRows);
+                        } else {
+                            // Handle the case where no data is returned
+                            $("#TAAvailabilityTable tbody").html('<tr><td colspan="2">No availability data found.</td></tr>');
+                        }
                     } catch (error) {
                         console.error('Error fetching TA availability:', error);
+                        $("#TAAvailabilityTable tbody").html('<tr><td colspan="2">Error fetching availability data.</td></tr>');
                     }
+                } else {
+                    alert("Please select both 'From' and 'To' dates.");
                 }
             }
 
@@ -162,6 +178,11 @@
 
                 // Check if the form fields are not empty
                 if (requester && task && additionalInfo && taRequested && fromDate && toDate) {
+                    if (taRequested < 1 || taRequested > 25) {
+                        alert("Please request between 1 and 25 TAs.");
+                        return;
+                    }
+
                     // Create new row for the table
                     var newRow = `
                         <tr>
@@ -205,13 +226,10 @@
                 try {
                     const { sendEmail } = await import('./esMailer.js');
                     await sendEmail(requester, task);
-                    console.log('Email sent successfully');
+                    alert("Confirmation email sent successfully.");
                 } catch (error) {
-                    console.error('Error sending email:', error);
+                    console.error("Error sending email:", error);
                 }
-
-                // Redirect to confirmation page
-                window.location.href = 'thankyouflex.html';
             }
         });
     </script>
