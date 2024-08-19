@@ -5,20 +5,36 @@ const dynamoDb = new DynamoDB.DocumentClient({ region: 'ca-central-1' });
 const ses = new SES({ region: 'ca-central-1' });
 
 export const handler = async (event) => {
+    // Handle preflight OPTIONS request
+    if (event.httpMethod === "OPTIONS") {
+        return {
+            statusCode: 200,
+            headers: {
+                "Access-Control-Allow-Origin": "*", // Replace "*" with your domain if needed
+                "Access-Control-Allow-Headers": "Content-Type",
+                "Access-Control-Allow-Methods": "POST, OPTIONS"
+            },
+            body: JSON.stringify({ message: "Preflight check successful" })
+        };
+    }
+
     const requestData = JSON.parse(event.body);
     const { requester, task, dates, additionalInfo, taRequested } = requestData;
 
-    // Validate required fields
     if (!requester || !task || !dates || !Array.isArray(dates) || dates.length === 0 || !additionalInfo || taRequested === undefined) {
         console.error('Missing or invalid required fields:', { requester, task, dates, additionalInfo, taRequested });
         return {
             statusCode: 400,
+            headers: {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Headers": "Content-Type",
+                "Access-Control-Allow-Methods": "POST, OPTIONS"
+            },
             body: JSON.stringify({ message: "Missing or invalid required fields" }),
         };
     }
 
     try {
-        // Iterate through the dates array and update the DynamoDB table for each date
         for (const date of dates) {
             const params = {
                 TableName: 'Availabilitytable',
@@ -30,17 +46,26 @@ export const handler = async (event) => {
             await dynamoDb.update(params).promise();
         }
 
-        // Send email
         await sendEmail(requester, task, dates, additionalInfo, taRequested);
 
         return {
             statusCode: 200,
+            headers: {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Headers": "Content-Type",
+                "Access-Control-Allow-Methods": "POST, OPTIONS"
+            },
             body: JSON.stringify({ message: "Request processed successfully" }),
         };
     } catch (error) {
         console.error('Error:', error);
         return {
             statusCode: 500,
+            headers: {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Headers": "Content-Type",
+                "Access-Control-Allow-Methods": "POST, OPTIONS"
+            },
             body: JSON.stringify({
                 message: "Failed to process request",
                 error: error.message
@@ -52,7 +77,7 @@ export const handler = async (event) => {
 async function sendEmail(requester, task, dates, additionalInfo, taRequested) {
     const emailParams = {
         Destination: {
-            ToAddresses: ['flex2024@lballocations.com'] // Replace with recipient email address
+            ToAddresses: ['flex2024@lballocations.com']
         },
         Message: {
             Body: {
@@ -69,7 +94,7 @@ async function sendEmail(requester, task, dates, additionalInfo, taRequested) {
                 Data: 'Allocation request'
             }
         },
-        Source: 'noreply@lballocations.com' // Replace with sender email address
+        Source: 'noreply@lballocations.com'
     };
 
     try {
