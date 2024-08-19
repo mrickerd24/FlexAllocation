@@ -29,14 +29,33 @@
                 <div class="form-group">
                     <label for="from">From:</label>
                     <input type="text" id="from" name="from">
-                    <div id="taAvailability" style="display:inline-block; margin-left: 20px;">
-                        Available TAs: <span id="availableTAs">25</span>
-                    </div>
                 </div>
                 <div class="form-group">
                     <label for="to">To:</label>
                     <input type="text" id="to" name="to">
                 </div>
+
+                <!-- Button to check TA availability -->
+                <div class="form-group">
+                    <button type="button" class="button" onclick="checkAvailability()">Check Availability</button>
+                </div>
+<br>
+                <!-- New table for displaying TA availability -->
+                <div class="form-container" style="width: 800px; margin: 0 auto; padding: 20px;">
+                    <h2>TA Availability</h2>
+                    <table id="TAAvailabilityTable" style="margin: 0 auto;">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Available TAs</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Rows will be added here dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+<br><br>
                 <div class="form-group">
                     <label for="task">Task:</label>
                     <input type="text" id="task" name="task">
@@ -113,28 +132,25 @@
                 return date;
             }
 
-            async function updateTAAvailability() {
-            const selectedDate = $("#from").val();  // Get the selected date
+            async function checkAvailability() {
+                const selectedDate = $("#from").val();  // Get the selected date
 
-            if (selectedDate) {
-                try {
-                    const response = await fetch(`https://<Your-API-Gateway-URL>?date=${selectedDate}`);
-                    const data = await response.json();
-                    $("#taAvailability").text(data.availableTAs);  // Update the TA availability on the page
-                } catch (error) {
-                    console.error('Error fetching TA availability:', error);
+                if (selectedDate) {
+                    try {
+                        const response = await fetch(`https://<Your-API-Gateway-URL>?date=${selectedDate}`);
+                        const data = await response.json();
+                        const availableTAs = data.availableTAs || 22; // Default to 22 if not available
+                        $("#TAAvailabilityTable tbody").html(`
+                            <tr>
+                                <td>${selectedDate}</td>
+                                <td>${availableTAs}</td>
+                            </tr>
+                        `);
+                    } catch (error) {
+                        console.error('Error fetching TA availability:', error);
+                    }
                 }
             }
-        }
-
-                    //function to update TA availability
-        function updateTAAvailability(number) {
-            $('#availableTAs').text(number);
-        }
-
-        // Initial display of available TAs
-        var availableTAs = 25; // Initial value
-        updateTAAvailability(availableTAs);
 
             window.addItem = function() {
                 var requester = $("#requester").val();
@@ -170,16 +186,16 @@
                 var tableData = [];
                 $("#RequestConfirmation tbody tr").each(function() {
                     var row = {
-            name: $(this).find('td:eq(0)').text(),
-            from: $(this).find('td:eq(1)').text(),
-            to: $(this).find('td:eq(2)').text(),
-            task: $(this).find('td:eq(3)').text(),
-            ta: $(this).find('td:eq(4)').text(),
-            additionalInfo: $(this).find('td:eq(5)').text()
-        };
+                        name: $(this).find('td:eq(0)').text(),
+                        from: $(this).find('td:eq(1)').text(),
+                        to: $(this).find('td:eq(2)').text(),
+                        task: $(this).find('td:eq(3)').text(),
+                        ta: $(this).find('td:eq(4)').text(),
+                        additionalInfo: $(this).find('td:eq(5)').text()
+                    };
                     tableData.push(row);
                 });
-                localStorage.setItem('requestSummary', JSON.stringify(tableData)); // Fixed key
+                localStorage.setItem('requestSummary', JSON.stringify(tableData));
 
                 // Get requester and task for email
                 var requester = $("#requester").val();
