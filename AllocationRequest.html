@@ -136,6 +136,8 @@
                 const toDate = $("#to").val(); // Assuming format mm/dd/yy
                 const dates = getDates(new Date(fromDate), new Date(toDate));
 
+                console.log("Dates array:", dates); // Log the dates array
+
                 $("#TAAvailabilityTable tbody").empty();
 
                 try {
@@ -147,7 +149,12 @@
                         body: JSON.stringify({ dates })
                     });
 
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+
                     const result = await response.json();
+                    console.log("API Response:", result); // Log the API response
 
                     dates.forEach(date => {
                         const availableTA = result[date] || 22; // Default to 22 if not found
@@ -231,6 +238,10 @@
                         taRequested
                     })
                 });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
 
                 const result = await response.json();
                 alert("Confirmation email sent successfully.");
