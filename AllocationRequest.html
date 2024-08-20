@@ -39,7 +39,7 @@
                     <button type="button" class="button" onclick="checkAvailability()">Check Availability</button>
                 </div>
                 <br>
-                <!-- New table for displaying TA availability -->
+                <!-- Table for displaying TA availability -->
                 <div class="form-container" style="width: 800px; margin: 0 auto; padding: 20px;">
                     <h2>TA Availability</h2>
                     <table id="TAAvailabilityTable" style="margin: 0 auto;">
@@ -120,7 +120,7 @@
                 .on("change", function() {
                     from.datepicker("option", "maxDate", getDate(this));
                 });
-
+    
             function getDate(element) {
                 var date;
                 try {
@@ -130,16 +130,24 @@
                 }
                 return date;
             }
-
+    
+            function formatDate(date) {
+                // Convert date from mm/dd/yyyy to yyyy-mm-dd
+                var month = ("0" + (date.getMonth() + 1)).slice(-2);
+                var day = ("0" + date.getDate()).slice(-2);
+                var year = date.getFullYear();
+                return year + "-" + month + "-" + day;
+            }
+    
             window.checkAvailability = async function() {
-                const fromDate = $("#from").val(); // Assuming format mm/dd/yy
-                const toDate = $("#to").val(); // Assuming format mm/dd/yy
+                const fromDate = $("#from").val(); // mm/dd/yyyy
+                const toDate = $("#to").val(); // mm/dd/yyyy
                 const dates = getDates(new Date(fromDate), new Date(toDate));
-
+    
                 console.log("Dates array:", dates); // Log the dates array
-
+    
                 $("#TAAvailabilityTable tbody").empty();
-
+    
                 try {
                     const response = await fetch('https://d6lc96ph7c.execute-api.ca-central-1.amazonaws.com/prod/allocationRequests', {
                         method: 'POST',
@@ -148,14 +156,14 @@
                         },
                         body: JSON.stringify({ dates })
                     });
-
+    
                     if (!response.ok) {
                         throw new Error(`HTTP error! Status: ${response.status}`);
                     }
-
+    
                     const result = await response.json();
                     console.log("API Response:", result); // Log the API response
-
+    
                     dates.forEach(date => {
                         const availableTA = result[date] || 22; // Default to 22 if not found
                         $("#TAAvailabilityTable tbody").append(`<tr><td>${date}</td><td>${availableTA}</td></tr>`);
@@ -164,18 +172,18 @@
                     console.error('Error fetching availability:', error);
                 }
             };
-
+    
             function getDates(startDate, endDate) {
                 let dates = [];
                 let currentDate = startDate;
                 while (currentDate <= endDate) {
-                    dates.push($.datepicker.formatDate(dateFormat, currentDate));
+                    dates.push(formatDate(currentDate));
                     currentDate.setDate(currentDate.getDate() + 1);
                 }
                 return dates;
             }
         });
-
+    
         window.addItem = function() {
             var requester = $("#requester").val();
             var from = $("#from").val();
@@ -183,7 +191,7 @@
             var task = $("#task").val();
             var ta = $("#taRequested").val();
             var additionalInfo = $("#additionalInfo").val();
-
+    
             if (requester && from && to && task && ta) {
                 $("#RequestConfirmation tbody").append(`
                     <tr>
@@ -199,7 +207,7 @@
                 alert("Please fill out all required fields.");
             }
         }
-
+    
         window.confirmItems = async function() {
             var tableData = [];
             $("#RequestConfirmation tbody tr").each(function() {
@@ -214,7 +222,7 @@
                 tableData.push(row);
             });
             localStorage.setItem('requestSummary', JSON.stringify(tableData));
-
+    
             var requester = $("#requester").val();
             var task = $("#task").val();
             var dates = [];
@@ -223,7 +231,7 @@
             });
             var additionalInfo = $("#additionalInfo").val();
             var taRequested = $("#taRequested").val();
-
+    
             try {
                 const response = await fetch('https://d6lc96ph7c.execute-api.ca-central-1.amazonaws.com/prod/sendEmail', {
                     method: 'POST',
@@ -238,11 +246,11 @@
                         taRequested
                     })
                 });
-
+    
                 if (!response.ok) {
                     throw new Error(`HTTP error! Status: ${response.status}`);
                 }
-
+    
                 const result = await response.json();
                 alert("Confirmation email sent successfully.");
             } catch (error) {
@@ -250,5 +258,4 @@
             }
         }
     </script>
-</body>
-</html>
+    

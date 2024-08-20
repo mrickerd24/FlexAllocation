@@ -21,7 +21,6 @@ exports.handler = async (event) => {
 
     // Check if request has a body (for POST) or uses queryStringParameters (for GET)
     if (event.body) {
-        // For POST requests
         try {
             const requestData = JSON.parse(event.body);
             dates = requestData.dates;
@@ -37,8 +36,12 @@ exports.handler = async (event) => {
             };
         }
     } else if (event.queryStringParameters && event.queryStringParameters.date) {
-        // For GET requests
+        // Convert date format if necessary
         dates = [event.queryStringParameters.date];
+        
+        // Example: Convert MM-DD-YYYY to YYYY-MM-DD
+        const [month, day, year] = dates[0].split('-');
+        dates[0] = `${year}-${month}-${day}`;
     } else {
         return {
             statusCode: 400,
@@ -47,7 +50,7 @@ exports.handler = async (event) => {
                 "Access-Control-Allow-Headers": "Content-Type",
                 "Access-Control-Allow-Methods": "POST, GET, OPTIONS"
             },
-            body: JSON.stringify({ error: 'No date provided in request' }),
+            body: JSON.stringify({ error: 'No dates provided in request' }),
         };
     }
 
@@ -76,7 +79,7 @@ exports.handler = async (event) => {
 
             const result = await dynamodb.get(params).promise();
             const currentAvailableTA = result.Item ? Number(result.Item.availablePeople) : 0;
-            const adjustedAvailableTA = defaultAvailableTA + currentAvailableTA;
+            const adjustedAvailableTA = defaultAvailableTA + currentAvailableTA; // Correct adjustment
 
             availabilityResults[date] = adjustedAvailableTA;
         }
