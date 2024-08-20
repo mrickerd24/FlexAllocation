@@ -9,7 +9,7 @@ exports.handler = async (event) => {
             headers: {
                 "Access-Control-Allow-Origin": "*", // Replace "*" with your domain if needed
                 "Access-Control-Allow-Headers": "Content-Type",
-                "Access-Control-Allow-Methods": "GET, OPTIONS"
+                "Access-Control-Allow-Methods": "POST, GET, OPTIONS"
             },
             body: JSON.stringify({ message: "Preflight check successful" })
         };
@@ -17,50 +17,92 @@ exports.handler = async (event) => {
 
     console.log('Event:', JSON.stringify(event));
 
-    const date = event.queryStringParameters ? event.queryStringParameters.date : null;
+    let dates;
 
-    if (!date) {
+    // Check if request has a body (for POST) or uses queryStringParameters (for GET)
+    if (event.body) {
+        // For POST requests
+        try {
+            const requestData = JSON.parse(event.body);
+            dates = requestData.dates;
+        } catch (error) {
+            return {
+                statusCode: 400,
+                headers: {
+                    "Access-Control-Allow-Origin": "*",
+                    "Access-Control-Allow-Headers": "Content-Type",
+                    "Access-Control-Allow-Methods": "POST, GET, OPTIONS"
+                },
+                body: JSON.stringify({ error: 'Invalid JSON in request body' }),
+            };
+        }
+    } else if (event.queryStringParameters && event.queryStringParameters.date) {
+        // For GET requests
+        dates = [event.queryStringParameters.date];
+    } else {
         return {
             statusCode: 400,
             headers: {
                 "Access-Control-Allow-Origin": "*",
                 "Access-Control-Allow-Headers": "Content-Type",
-                "Access-Control-Allow-Methods": "GET, OPTIONS"
+                "Access-Control-Allow-Methods": "POST, GET, OPTIONS"
             },
-            body: JSON.stringify({ error: 'Date parameter is missing' }),
+            body: JSON.stringify({ error: 'No date provided in request' }),
         };
     }
 
-    const params = {
-        TableName: 'Availabilitytable',
-        Key: { date }
-    };
+    if (!dates || dates.length === 0) {
+        return {
+            statusCode: 400,
+            headers: {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Headers": "Content-Type",
+                "Access-Control-Allow-Methods": "POST, GET, OPTIONS"
+            },
+            body: JSON.stringify({ error: 'Dates parameter is missing or empty' }),
+        };
+    }
+
+    const defaultAvailableTA = 22;
+    let availabilityResults = {};
 
     try {
-        const result = await dynamodb.get(params).promise();
-        const defaultAvailableTA = 22;
-        const currentAvailableTA = result.Item ? Number(result.Item.availableTA) : 0;
-        const adjustedAvailableTA = defaultAvailableTA + currentAvailableTA;
-        const responseMessage = `${adjustedAvailableTA} Available`;
+        // Loop through each date to get availability
+        for (const date of dates) {
+            const params = {
+                TableName: 'Availabilitytable',
+                Key: { date }
+            };
+
+            const result = await dynamodb.get(params).promise();
+            const currentAvailableTA = result.Item ? Number(result.Item.availablePeople) : 0;
+            const adjustedAvailableTA = defaultAvailableTA + currentAvailableTA;
+
+            availabilityResults[date] = adjustedAvailableTA;
+        }
+
+        console.log('Response:', JSON.stringify(availabilityResults));
 
         return {
             statusCode: 200,
             headers: {
                 "Access-Control-Allow-Origin": "*",
                 "Access-Control-Allow-Headers": "Content-Type",
-                "Access-Control-Allow-Methods": "GET, OPTIONS"
+                "Access-Control-Allow-Methods": "POST, GET, OPTIONS"
             },
-            body: JSON.stringify({ message: responseMessage }),
+            body: JSON.stringify(availabilityResults),
         };
     } catch (error) {
+        console.error('Error fetching availability:', error);
+
         return {
             statusCode: 500,
             headers: {
                 "Access-Control-Allow-Origin": "*",
                 "Access-Control-Allow-Headers": "Content-Type",
-                "Access-Control-Allow-Methods": "GET, OPTIONS"
+                "Access-Control-Allow-Methods": "POST, GET, OPTIONS"
             },
-            body: JSON.stringify({ error: 'Could not retrieve data' }),
+            body: JSON.stringify({ error: 'Could not retrieve availability data' }),
         };
     }
 };
