@@ -19,7 +19,7 @@ exports.handler = async (event) => {
 
     let dates;
 
-    // Check if request has a body (for POST) or uses queryStringParameters (for GET)
+    // Handle both POST and GET methods
     if (event.body) {
         try {
             const requestData = JSON.parse(event.body);
@@ -36,7 +36,7 @@ exports.handler = async (event) => {
             };
         }
     } else if (event.queryStringParameters && event.queryStringParameters.date) {
-        // Convert date format if necessary
+        // If using GET method with query parameters
         dates = [event.queryStringParameters.date];
         
         // Example: Convert MM-DD-YYYY to YYYY-MM-DD

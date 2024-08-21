@@ -5,67 +5,58 @@ const dynamoDb = new DynamoDB.DocumentClient({ region: 'ca-central-1' });
 const ses = new SES({ region: 'ca-central-1' });
 
 export const handler = async (event) => {
-    // Handle preflight OPTIONS request
-    if (event.httpMethod === "OPTIONS") {
+    let requestData;
+
+    // Check if the body exists and parse it
+    try {
+        requestData = event.body ? JSON.parse(event.body) : null;
+    } catch (error) {
         return {
-            statusCode: 200,
-            headers: {
-                "Access-Control-Allow-Origin": "*", // Replace "*" with your domain if needed
-                "Access-Control-Allow-Headers": "Content-Type",
-                "Access-Control-Allow-Methods": "POST, OPTIONS"
-            },
-            body: JSON.stringify({ message: "Preflight check successful" })
+            statusCode: 400,
+            body: JSON.stringify({ error: 'Invalid JSON in request body' }),
         };
     }
 
-    const requestData = JSON.parse(event.body);
-    const { requester, task, dates, additionalInfo, taRequested } = requestData;
-
-    if (!requester || !task || !dates || !Array.isArray(dates) || dates.length === 0 || !additionalInfo || taRequested === undefined) {
-        console.error('Missing or invalid required fields:', { requester, task, dates, additionalInfo, taRequested });
+    if (!requestData) {
         return {
             statusCode: 400,
-            headers: {
-                "Access-Control-Allow-Origin": "*",
-                "Access-Control-Allow-Headers": "Content-Type",
-                "Access-Control-Allow-Methods": "POST, OPTIONS"
-            },
-            body: JSON.stringify({ message: "Missing or invalid required fields" }),
+            body: JSON.stringify({ error: 'Request body is missing' }),
+        };
+    }
+
+    const { requester, task, dates, taRequested, additionalInfo } = requestData;
+
+    if (!requester || !task || !dates || dates.length === 0 || taRequested === undefined) {
+        return {
+            statusCode: 400,
+            body: JSON.stringify({ message: "Missing required fields" }),
         };
     }
 
     try {
+        // Iterate through the dates array and update the DynamoDB table for each date
         for (const date of dates) {
             const params = {
                 TableName: 'Availabilitytable',
                 Key: { date },
                 UpdateExpression: 'ADD availablePeople :decrement',
-                ExpressionAttributeValues: { ':decrement': -1 },
+                ExpressionAttributeValues: { ':decrement': -taRequested },
                 ReturnValues: 'UPDATED_NEW',
             };
             await dynamoDb.update(params).promise();
         }
 
-        await sendEmail(requester, task, dates, additionalInfo, taRequested);
+        // Send email
+        await sendEmail(requester, task, taRequested, additionalInfo);
 
         return {
             statusCode: 200,
-            headers: {
-                "Access-Control-Allow-Origin": "*",
-                "Access-Control-Allow-Headers": "Content-Type",
-                "Access-Control-Allow-Methods": "POST, OPTIONS"
-            },
             body: JSON.stringify({ message: "Request processed successfully" }),
         };
     } catch (error) {
         console.error('Error:', error);
         return {
             statusCode: 500,
-            headers: {
-                "Access-Control-Allow-Origin": "*",
-                "Access-Control-Allow-Headers": "Content-Type",
-                "Access-Control-Allow-Methods": "POST, OPTIONS"
-            },
             body: JSON.stringify({
                 message: "Failed to process request",
                 error: error.message
@@ -74,27 +65,22 @@ export const handler = async (event) => {
     }
 };
 
-async function sendEmail(requester, task, dates, additionalInfo, taRequested) {
+async function sendEmail(requester, task, taRequested, additionalInfo) {
     const emailParams = {
         Destination: {
-            ToAddresses: ['flex2024@lballocations.com']
+            ToAddresses: ['flex2024@lballocations.com'] // Replace with recipient email address
         },
         Message: {
             Body: {
                 Text: {
-                    Data: `Subject: Allocation request\n\n` +
-                          `Requester: ${requester}\n` +
-                          `Dates: ${dates.join(', ')}\n` +
-                          `Task: ${task}\n` +
-                          `Additional Information: ${additionalInfo}\n` +
-                          `Number of TA's Requested: ${taRequested}`
+                    Data: `New allocation request from ${requester} for task ${task}. Number of TAs requested: ${taRequested}. Additional information: ${additionalInfo || 'None'}`
                 }
             },
             Subject: {
-                Data: 'Allocation request'
+                Data: 'New Allocation Request'
             }
         },
-        Source: 'noreply@lballocations.com'
+        Source: 'noreply@lballocations.com' // Replace with sender email address
     };
 
     try {
