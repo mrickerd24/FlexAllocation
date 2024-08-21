@@ -143,27 +143,28 @@
                 const fromDate = $("#from").val(); // mm/dd/yyyy
                 const toDate = $("#to").val(); // mm/dd/yyyy
                 const dates = getDates(new Date(fromDate), new Date(toDate));
-    
+
                 console.log("Dates array:", dates); // Log the dates array
-    
+
                 $("#TAAvailabilityTable tbody").empty();
-    
+
                 try {
                     const response = await fetch('https://d6lc96ph7c.execute-api.ca-central-1.amazonaws.com/prod/allocationRequests', {
                         method: 'POST',
                         headers: {
-                            'Content-Type': 'application/json'
+                            'Content-Type': 'application/json',
+                            'x-api-key': 'DInUc6i1Gd5PcEi0URdJla9BhWPqEymqSjiespAc' // Use AllocationRequests-key here
                         },
                         body: JSON.stringify({ dates })
                     });
-    
+
                     if (!response.ok) {
                         throw new Error(`HTTP error! Status: ${response.status}`);
                     }
-    
+
                     const result = await response.json();
                     console.log("API Response:", result); // Log the API response
-    
+
                     dates.forEach(date => {
                         const availableTA = result[date] || 22; // Default to 22 if not found
                         $("#TAAvailabilityTable tbody").append(`<tr><td>${date}</td><td>${availableTA}</td></tr>`);
@@ -233,29 +234,28 @@
             var taRequested = $("#taRequested").val();
     
             try {
-                const response = await fetch('https://d6lc96ph7c.execute-api.ca-central-1.amazonaws.com/prod/sendEmail', {
+                const response = await fetch('https://d6lc96ph7c.execute-api.ca-central-1.amazonaws.com/prod/allocationRequests', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'x-api-key': 'OJXcLiVzVX4Q650IM1eF18xhcUQaoTH6CnK67Oxh' // Use AllocationRequests-key here
                     },
-                    body: JSON.stringify({
-                        requester,
-                        task,
-                        dates,
-                        additionalInfo,
-                        taRequested
-                    })
+                    body: JSON.stringify({ requester, task, dates, additionalInfo, taRequested })
                 });
     
                 if (!response.ok) {
                     throw new Error(`HTTP error! Status: ${response.status}`);
                 }
     
-                const result = await response.json();
-                alert("Confirmation email sent successfully.");
+                alert("Request confirmed and submitted!");
+                $("#RequestConfirmation tbody").empty(); // Clear table after submission
+                $("#AllocationRequest")[0].reset(); // Reset the form fields
+    
             } catch (error) {
-                console.error("Error sending email:", error);
+                console.error('Error confirming request:', error);
+                alert("Failed to confirm request.");
             }
         }
     </script>
-    
+</body>
+</html>
