@@ -7,8 +7,8 @@ exports.handler = async (event) => {
         return {
             statusCode: 200,
             headers: {
-                "Access-Control-Allow-Origin": "*", // Replace "*" with your domain if needed
-                "Access-Control-Allow-Headers": "Content-Type",
+                "Access-Control-Allow-Origin": "https://mrickerd24.github.io", // Frontend domain
+                "Access-Control-Allow-Headers": "Content-Type, X-Api-Key",
                 "Access-Control-Allow-Methods": "POST, GET, OPTIONS"
             },
             body: JSON.stringify({ message: "Preflight check successful" })
@@ -28,8 +28,8 @@ exports.handler = async (event) => {
             return {
                 statusCode: 400,
                 headers: {
-                    "Access-Control-Allow-Origin": "*",
-                    "Access-Control-Allow-Headers": "Content-Type",
+                    "Access-Control-Allow-Origin": "https://mrickerd24.github.io",
+                    "Access-Control-Allow-Headers": "Content-Type, X-Api-Key",
                     "Access-Control-Allow-Methods": "POST, GET, OPTIONS"
                 },
                 body: JSON.stringify({ error: 'Invalid JSON in request body' }),
@@ -46,8 +46,8 @@ exports.handler = async (event) => {
         return {
             statusCode: 400,
             headers: {
-                "Access-Control-Allow-Origin": "*",
-                "Access-Control-Allow-Headers": "Content-Type",
+                "Access-Control-Allow-Origin": "https://mrickerd24.github.io",
+                "Access-Control-Allow-Headers": "Content-Type, X-Api-Key",
                 "Access-Control-Allow-Methods": "POST, GET, OPTIONS"
             },
             body: JSON.stringify({ error: 'No dates provided in request' }),
@@ -58,8 +58,8 @@ exports.handler = async (event) => {
         return {
             statusCode: 400,
             headers: {
-                "Access-Control-Allow-Origin": "*",
-                "Access-Control-Allow-Headers": "Content-Type",
+                "Access-Control-Allow-Origin": "https://mrickerd24.github.io",
+                "Access-Control-Allow-Headers": "Content-Type, X-Api-Key",
                 "Access-Control-Allow-Methods": "POST, GET, OPTIONS"
             },
             body: JSON.stringify({ error: 'Dates parameter is missing or empty' }),
@@ -79,7 +79,7 @@ exports.handler = async (event) => {
 
             const result = await dynamodb.get(params).promise();
             const currentAvailableTA = result.Item ? Number(result.Item.availablePeople) : 0;
-            const adjustedAvailableTA = defaultAvailableTA + currentAvailableTA; // Adjusted calculation
+            const adjustedAvailableTA = defaultAvailableTA + currentAvailableTA; // Corrected calculation
 
             availabilityResults[date] = adjustedAvailableTA;
         }
@@ -89,8 +89,8 @@ exports.handler = async (event) => {
         return {
             statusCode: 200,
             headers: {
-                "Access-Control-Allow-Origin": "*",
-                "Access-Control-Allow-Headers": "Content-Type",
+                "Access-Control-Allow-Origin": "https://mrickerd24.github.io",
+                "Access-Control-Allow-Headers": "Content-Type, X-Api-Key",
                 "Access-Control-Allow-Methods": "POST, GET, OPTIONS"
             },
             body: JSON.stringify(availabilityResults),
@@ -101,8 +101,8 @@ exports.handler = async (event) => {
         return {
             statusCode: 500,
             headers: {
-                "Access-Control-Allow-Origin": "*",
-                "Access-Control-Allow-Headers": "Content-Type",
+                "Access-Control-Allow-Origin": "https://mrickerd24.github.io",
+                "Access-Control-Allow-Headers": "Content-Type, X-Api-Key",
                 "Access-Control-Allow-Methods": "POST, GET, OPTIONS"
             },
             body: JSON.stringify({ error: 'Could not retrieve availability data' }),

@@ -149,7 +149,7 @@
                 $("#TAAvailabilityTable tbody").empty();
     
                 try {
-                    const response = await fetch('https://d6lc96ph7c.execute-api.ca-central-1.amazonaws.com/prod/allocationRequests', {
+                    const response = await fetch('https://nacq6ypyz8.execute-api.ca-central-1.amazonaws.com/prod/AllocationRequests', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -234,7 +234,7 @@
             var taRequested = $("#taRequested").val();
     
             try {
-                const response = await fetch('https://d6lc96ph7c.execute-api.ca-central-1.amazonaws.com/prod/allocationRequests', {
+                const response = await fetch('https://nacq6ypyz8.execute-api.ca-central-1.amazonaws.com/prod/AllocationRequests', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
