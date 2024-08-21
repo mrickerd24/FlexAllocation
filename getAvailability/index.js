@@ -79,7 +79,7 @@ exports.handler = async (event) => {
 
             const result = await dynamodb.get(params).promise();
             const currentAvailableTA = result.Item ? Number(result.Item.availablePeople) : 0;
-            const adjustedAvailableTA = defaultAvailableTA + currentAvailableTA; // Correct adjustment
+            const adjustedAvailableTA = defaultAvailableTA + currentAvailableTA; // Adjusted calculation
 
             availabilityResults[date] = adjustedAvailableTA;
         }

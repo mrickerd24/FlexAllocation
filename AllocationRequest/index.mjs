@@ -5,6 +5,21 @@ const dynamoDb = new DynamoDB.DocumentClient({ region: 'ca-central-1' });
 const ses = new SES({ region: 'ca-central-1' });
 
 export const handler = async (event) => {
+    // Handle preflight OPTIONS request
+    if (event.httpMethod === "OPTIONS") {
+        return {
+            statusCode: 200,
+            headers: {
+                "Access-Control-Allow-Origin": "*", // Replace "*" with your domain if needed
+                "Access-Control-Allow-Headers": "Content-Type, X-Api-Key",
+                "Access-Control-Allow-Methods": "POST, GET, OPTIONS"
+            },
+            body: JSON.stringify({ message: "Preflight check successful" })
+        };
+    }
+
+    console.log('Event:', JSON.stringify(event));
+
     let requestData;
 
     // Check if the body exists and parse it
@@ -13,6 +28,11 @@ export const handler = async (event) => {
     } catch (error) {
         return {
             statusCode: 400,
+            headers: {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Headers": "Content-Type, X-Api-Key",
+                "Access-Control-Allow-Methods": "POST, GET, OPTIONS"
+            },
             body: JSON.stringify({ error: 'Invalid JSON in request body' }),
         };
     }
@@ -20,6 +40,11 @@ export const handler = async (event) => {
     if (!requestData) {
         return {
             statusCode: 400,
+            headers: {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Headers": "Content-Type, X-Api-Key",
+                "Access-Control-Allow-Methods": "POST, GET, OPTIONS"
+            },
             body: JSON.stringify({ error: 'Request body is missing' }),
         };
     }
@@ -29,6 +54,11 @@ export const handler = async (event) => {
     if (!requester || !task || !dates || dates.length === 0 || taRequested === undefined) {
         return {
             statusCode: 400,
+            headers: {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Headers": "Content-Type, X-Api-Key",
+                "Access-Control-Allow-Methods": "POST, GET, OPTIONS"
+            },
             body: JSON.stringify({ message: "Missing required fields" }),
         };
     }
@@ -51,12 +81,22 @@ export const handler = async (event) => {
 
         return {
             statusCode: 200,
+            headers: {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Headers": "Content-Type, X-Api-Key",
+                "Access-Control-Allow-Methods": "POST, GET, OPTIONS"
+            },
             body: JSON.stringify({ message: "Request processed successfully" }),
         };
     } catch (error) {
         console.error('Error:', error);
         return {
             statusCode: 500,
+            headers: {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Headers": "Content-Type, X-Api-Key",
+                "Access-Control-Allow-Methods": "POST, GET, OPTIONS"
+            },
             body: JSON.stringify({
                 message: "Failed to process request",
                 error: error.message
