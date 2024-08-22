@@ -10,7 +10,7 @@ export const handler = async (event) => {
         return {
             statusCode: 200,
             headers: {
-                "Access-Control-Allow-Origin": "https://mrickerd24.github.io", // Replace "*" with your domain if needed
+                "Access-Control-Allow-Origin": "https://mrickerd24.github.io", // Replace with your domain if needed
                 "Access-Control-Allow-Headers": "Content-Type, X-Api-Key",
                 "Access-Control-Allow-Methods": "POST, GET, OPTIONS"
             },

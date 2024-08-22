@@ -11,7 +11,7 @@
 </head>
 <body>
     <header>
-        <div class="logo-image"></div> 
+        <div class="logo-image"></div>
     </header>
 
     <main>
@@ -103,21 +103,18 @@
     <script>
         $(function() {
             var dateFormat = "mm/dd/yy",
-                from = $("#from")
-                    .datepicker({
-                        defaultDate: "+1w",
-                        changeMonth: true,
-                        numberOfMonths: 1
-                    })
-                    .on("change", function() {
-                        to.datepicker("option", "minDate", getDate(this));
-                    }),
+                from = $("#from").datepicker({
+                    defaultDate: "+1w",
+                    changeMonth: true,
+                    numberOfMonths: 1
+                }).on("change", function() {
+                    to.datepicker("option", "minDate", getDate(this));
+                }),
                 to = $("#to").datepicker({
                     defaultDate: "+1w",
                     changeMonth: true,
                     numberOfMonths: 1
-                })
-                .on("change", function() {
+                }).on("change", function() {
                     from.datepicker("option", "maxDate", getDate(this));
                 });
     
@@ -131,49 +128,6 @@
                 return date;
             }
     
-            function formatDate(date) {
-                // Convert date from mm/dd/yyyy to yyyy-mm-dd
-                var month = ("0" + (date.getMonth() + 1)).slice(-2);
-                var day = ("0" + date.getDate()).slice(-2);
-                var year = date.getFullYear();
-                return year + "-" + month + "-" + day;
-            }
-    
-            window.checkAvailability = async function() {
-                const fromDate = $("#from").val(); // mm/dd/yyyy
-                const toDate = $("#to").val(); // mm/dd/yyyy
-                const dates = getDates(new Date(fromDate), new Date(toDate));
-    
-                console.log("Dates array:", dates); // Log the dates array
-    
-                $("#TAAvailabilityTable tbody").empty();
-    
-                try {
-                    const response = await fetch('https://nacq6ypyz8.execute-api.ca-central-1.amazonaws.com/prod/AllocationRequests', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'x-api-key': 'OJXcLiVzVX4Q650IM1eF18xhcUQaoTH6CnK67Oxh'
-                        },
-                        body: JSON.stringify({ dates })
-                    });
-    
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! Status: ${response.status}`);
-                    }
-    
-                    const result = await response.json();
-                    console.log("API Response:", result); // Log the API response
-    
-                    dates.forEach(date => {
-                        const availableTA = result[date] || 22; // Default to 22 if not found
-                        $("#TAAvailabilityTable tbody").append(`<tr><td>${date}</td><td>${availableTA}</td></tr>`);
-                    });
-                } catch (error) {
-                    console.error('Error fetching availability:', error);
-                }
-            };
-    
             function getDates(startDate, endDate) {
                 let dates = [];
                 let currentDate = startDate;
@@ -183,81 +137,121 @@
                 }
                 return dates;
             }
-        });
     
-        window.addItem = function() {
-            var requester = $("#requester").val();
-            var from = $("#from").val();
-            var to = $("#to").val();
-            var task = $("#task").val();
-            var ta = $("#taRequested").val();
-            var additionalInfo = $("#additionalInfo").val();
-    
-            if (requester && from && to && task && ta) {
-                $("#RequestConfirmation tbody").append(`
-                    <tr>
-                        <td>${requester}</td>
-                        <td>${from}</td>
-                        <td>${to}</td>
-                        <td>${task}</td>
-                        <td>${ta}</td>
-                        <td>${additionalInfo}</td>
-                    </tr>
-                `);
-            } else {
-                alert("Please fill out all required fields.");
+            function formatDate(date) {
+                var month = ("0" + (date.getMonth() + 1)).slice(-2);
+                var day = ("0" + date.getDate()).slice(-2);
+                var year = date.getFullYear();
+                return year + "-" + month + "-" + day;
             }
-        }
     
-        window.confirmItems = async function() {
-            var tableData = [];
-            $("#RequestConfirmation tbody tr").each(function() {
-                var row = {
-                    name: $(this).find('td:eq(0)').text(),
-                    from: $(this).find('td:eq(1)').text(),
-                    to: $(this).find('td:eq(2)').text(),
-                    task: $(this).find('td:eq(3)').text(),
-                    ta: $(this).find('td:eq(4)').text(),
-                    additionalInfo: $(this).find('td:eq(5)').text()
-                };
-                tableData.push(row);
-            });
-            localStorage.setItem('requestSummary', JSON.stringify(tableData));
+            window.checkAvailability = async function() {
+                const fromDate = $("#from").val();
+                const toDate = $("#to").val();
+                const dates = getDates(new Date(fromDate), new Date(toDate));
     
-            var requester = $("#requester").val();
-            var task = $("#task").val();
-            var dates = [];
-            $("#RequestConfirmation tbody tr").each(function() {
-                dates.push($(this).find('td:eq(1)').text()); // Assuming dates are in the 'From' column
-            });
-            var additionalInfo = $("#additionalInfo").val();
-            var taRequested = $("#taRequested").val();
+                console.log("Dates array:", dates);
     
-            try {
-                const response = await fetch('https://nacq6ypyz8.execute-api.ca-central-1.amazonaws.com/prod/AllocationRequests', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'x-api-key': 'OJXcLiVzVX4Q650IM1eF18xhcUQaoTH6CnK67Oxh'
-                    },
-                    body: JSON.stringify({
-                        requester,
-                        task,
-                        dates
-                    })
-                });
+                $("#TAAvailabilityTable tbody").empty();
     
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
+                try {
+                    const response = await fetch('https://nacq6ypyz8.execute-api.ca-central-1.amazonaws.com/prod/AllocationRequests', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'x-api-key': 'OJXcLiVzVX4Q650IM1eF18xhcUQaoTH6CnK67Oxh' // Use your actual API key here
+                        },
+                        body: JSON.stringify({ dates })
+                    });
+    
+                    if (!response.ok) {
+                        const errorDetails = await response.json();
+                        throw new Error(`HTTP error! Status: ${response.status}, Details: ${JSON.stringify(errorDetails)}`);
+                    }
+    
+                    const result = await response.json();
+                    console.log("API Response:", result);
+    
+                    dates.forEach(date => {
+                        const availableTA = result[date] || 22; // Default value if not provided by the API
+                        $("#TAAvailabilityTable tbody").append(`<tr><td>${date}</td><td>${availableTA}</td></tr>`);
+                    });
+                } catch (error) {
+                    console.error('Error fetching availability:', error);
+                }
+            };
+    
+            window.addItem = function() {
+                var requester = $("#requester").val();
+                var from = $("#from").val();
+                var to = $("#to").val();
+                var task = $("#task").val();
+                var ta = $("#taRequested").val();
+                var additionalInfo = $("#additionalInfo").val();
+    
+                if (requester && from && to && task && ta) {
+                    $("#RequestConfirmation tbody").append(`
+                        <tr>
+                            <td>${requester}</td>
+                            <td>${from}</td>
+                            <td>${to}</td>
+                            <td>${task}</td>
+                            <td>${ta}</td>
+                            <td>${additionalInfo}</td>
+                        </tr>
+                    `);
+                } else {
+                    alert("Please fill out all required fields.");
+                }
+            };
+    
+            window.confirmItems = async function() {
+                var requester = $("#requester").val();
+                var fromDate = $("#from").val();
+                var toDate = $("#to").val();
+                var task = $("#task").val();
+                var taRequested = $("#taRequested").val();
+                var additionalInfo = $("#additionalInfo").val();
+                var dates = getDates(new Date(fromDate), new Date(toDate));
+    
+                if (!requester || !fromDate || !toDate || !task || !taRequested) {
+                    alert("Please fill out all required fields.");
+                    return;
                 }
     
-                const result = await response.json();
-                console.log("API Response:", result); // Log the API response
-                window.location.href = "thankyouflex.html";
-            } catch (error) {
-                console.error('Error sending request:', error);
-            }
-        }
+                var requestBody = {
+                    requester: requester,
+                    from: fromDate,
+                    to: toDate,
+                    task: task,
+                    taRequested: taRequested,
+                    additionalInfo: additionalInfo,
+                    dates: dates
+                };
+    
+                try {
+                    const response = await fetch('https://nacq6ypyz8.execute-api.ca-central-1.amazonaws.com/prod/AllocationRequests', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'x-api-key': 'OJXcLiVzVX4Q650IM1eF18xhcUQaoTH6CnK67Oxh' // Use your actual API key here
+                        },
+                        body: JSON.stringify(requestBody)
+                    });
+    
+                    if (response.ok) {
+                        alert("Your request has been submitted successfully!");
+                        window.location.href = "thankyouflex.html"; // Redirect to the Thank You page
+                    } else {
+                        const errorDetails = await response.json();
+                        throw new Error(`HTTP error! Status: ${response.status}, Details: ${JSON.stringify(errorDetails)}`);
+                    }
+                } catch (error) {
+                    console.error('Error confirming items:', error);
+                    alert("There was an error processing your request. Please try again later.");
+                }
+            };
+        });
     </script>
 </body>
 </html>

@@ -5,6 +5,19 @@ const ses = new AWS.SES({ region: 'ca-central-1' });
 exports.handler = async (event) => {
     console.log('Received event:', JSON.stringify(event, null, 2));
 
+    // Handle preflight OPTIONS request
+    if (event.httpMethod === "OPTIONS") {
+        return {
+            statusCode: 200,
+            headers: {
+                "Access-Control-Allow-Origin": "https://mrickerd24.github.io", // Replace with your domain if needed
+                "Access-Control-Allow-Headers": "Content-Type, X-Api-Key",
+                "Access-Control-Allow-Methods": "POST, GET, OPTIONS"
+            },
+            body: JSON.stringify({ message: "Preflight check successful" })
+        };
+    }
+
     let requestData;
     try {
         // Directly parse the event.body if it's a string
@@ -17,6 +30,11 @@ exports.handler = async (event) => {
         console.error('Error parsing event body:', error);
         return {
             statusCode: 400,
+            headers: {
+                "Access-Control-Allow-Origin": "https://mrickerd24.github.io",
+                "Access-Control-Allow-Headers": "Content-Type, X-Api-Key",
+                "Access-Control-Allow-Methods": "POST, GET, OPTIONS"
+            },
             body: JSON.stringify({ message: 'Invalid request body' })
         };
     }
@@ -28,6 +46,11 @@ exports.handler = async (event) => {
         console.error('Request data is undefined');
         return {
             statusCode: 400,
+            headers: {
+                "Access-Control-Allow-Origin": "https://mrickerd24.github.io",
+                "Access-Control-Allow-Headers": "Content-Type, X-Api-Key",
+                "Access-Control-Allow-Methods": "POST, GET, OPTIONS"
+            },
             body: JSON.stringify({ message: 'Request data is missing' })
         };
     }
@@ -39,6 +62,11 @@ exports.handler = async (event) => {
         console.error('Invalid or missing dates:', dates);
         return {
             statusCode: 400,
+            headers: {
+                "Access-Control-Allow-Origin": "https://mrickerd24.github.io",
+                "Access-Control-Allow-Headers": "Content-Type, X-Api-Key",
+                "Access-Control-Allow-Methods": "POST, GET, OPTIONS"
+            },
             body: JSON.stringify({ message: 'Missing or invalid dates' })
         };
     }
@@ -48,6 +76,11 @@ exports.handler = async (event) => {
         console.error('Invalid or missing from/to dates');
         return {
             statusCode: 400,
+            headers: {
+                "Access-Control-Allow-Origin": "https://mrickerd24.github.io",
+                "Access-Control-Allow-Headers": "Content-Type, X-Api-Key",
+                "Access-Control-Allow-Methods": "POST, GET, OPTIONS"
+            },
             body: JSON.stringify({ message: 'Missing from or to date' })
         };
     }
@@ -72,6 +105,11 @@ exports.handler = async (event) => {
                 console.error(`Error updating availability for ${date}:`, error);
                 return {
                     statusCode: 500,
+                    headers: {
+                        "Access-Control-Allow-Origin": "https://mrickerd24.github.io",
+                        "Access-Control-Allow-Headers": "Content-Type, X-Api-Key",
+                        "Access-Control-Allow-Methods": "POST, GET, OPTIONS"
+                    },
                     body: JSON.stringify({ message: 'Failed to update availability', error: error.message })
                 };
             }
@@ -80,12 +118,22 @@ exports.handler = async (event) => {
         console.error('Error generating date range:', error);
         return {
             statusCode: 500,
+            headers: {
+                "Access-Control-Allow-Origin": "https://mrickerd24.github.io",
+                "Access-Control-Allow-Headers": "Content-Type, X-Api-Key",
+                "Access-Control-Allow-Methods": "POST, GET, OPTIONS"
+            },
             body: JSON.stringify({ message: 'Failed to process date range', error: error.message })
         };
     }
 
     return {
         statusCode: 200,
+        headers: {
+            "Access-Control-Allow-Origin": "https://mrickerd24.github.io",
+            "Access-Control-Allow-Headers": "Content-Type, X-Api-Key",
+            "Access-Control-Allow-Methods": "POST, GET, OPTIONS"
+        },
         body: JSON.stringify({ message: 'Time off request processed successfully' })
     };
 };
