@@ -2,9 +2,11 @@ import AWS from 'aws-sdk';
 const dynamoDb = new AWS.DynamoDB.DocumentClient({ region: 'ca-central-1' });
 
 export const handler = async (event) => {
+    console.log('Received event:', JSON.stringify(event, null, 2)); // Log the event
+
     let requestData;
 
-    // Check if event.body is present
+    // Check if body exists and parse it
     try {
         if (event.body) {
             requestData = JSON.parse(event.body);
@@ -23,14 +25,23 @@ export const handler = async (event) => {
 
     const { from, to } = requestData;
 
-    // Check if required fields are present
+    // Validate required fields
     if (!from || !to) {
         return {
             statusCode: 400,
-            body: JSON.stringify({ message: "Missing required fields" }),
+            body: JSON.stringify({ message: "Missing required fields: 'from' and 'to'" }),
         };
     }
 
+    // Validate date formats
+    if (!isValidDate(from) || !isValidDate(to)) {
+        return {
+            statusCode: 400,
+            body: JSON.stringify({ message: "Invalid date format. Use YYYY-MM-DD." }),
+        };
+    }
+
+    // Get list of dates in the range
     const dates = getDatesInRange(from, to);
     const availability = {};
 
@@ -43,7 +54,7 @@ export const handler = async (event) => {
             };
             const result = await dynamoDb.get(params).promise();
             const availableTA = result.Item ? result.Item.availableTA : 0;
-            availability[date] = 22 + availableTA; // Default to 22 + fetched value
+            availability[date] = 22 + availableTA; // Adjust based on your logic
         } catch (error) {
             console.error(`Error fetching data for ${date}:`, error);
             availability[date] = 22; // Default if there's an error
@@ -56,13 +67,20 @@ export const handler = async (event) => {
     };
 };
 
+// Function to check if a date is in valid format
+function isValidDate(dateString) {
+    const regex = /^\d{4}-\d{2}-\d{2}$/;
+    return dateString.match(regex) !== null;
+}
+
+// Function to get all dates in the range
 function getDatesInRange(startDate, endDate) {
     const dates = [];
     let currentDate = new Date(startDate);
     const end = new Date(endDate);
 
     while (currentDate <= end) {
-        dates.push(currentDate.toISOString().split('T')[0]); // Format as YYYY-MM-DD
+        dates.push(currentDate.toISOString().split('T')[0]);
         currentDate.setDate(currentDate.getDate() + 1);
     }
 
