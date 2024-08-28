@@ -1,4 +1,5 @@
 import AWS from 'aws-sdk';
+
 const dynamoDb = new AWS.DynamoDB.DocumentClient({ region: 'ca-central-1' });
 
 export const handler = async (event) => {
@@ -54,7 +55,7 @@ export const handler = async (event) => {
             };
             const result = await dynamoDb.get(params).promise();
             const availableTA = result.Item ? result.Item.availableTA : 0;
-            availability[date] = 22 + availableTA; // Adjust based on your logic
+            availability[date] = 22 - availableTA; // Adjust based on your logic
         } catch (error) {
             console.error(`Error fetching data for ${date}:`, error);
             availability[date] = 22; // Default if there's an error
@@ -70,7 +71,8 @@ export const handler = async (event) => {
 // Function to check if a date is in valid format
 function isValidDate(dateString) {
     const regex = /^\d{4}-\d{2}-\d{2}$/;
-    return dateString.match(regex) !== null;
+    const date = new Date(dateString);
+    return dateString.match(regex) !== null && !isNaN(date.getTime());
 }
 
 // Function to get all dates in the range
