@@ -15,5 +15,7 @@
   "description": "Lambda function to get availability data from DynamoDB.",
   "dependencies": {
     "aws-sdk": "^2.1677.0"
-  }
+  },
+  "type": "module"
 }
+
