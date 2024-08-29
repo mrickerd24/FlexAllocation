@@ -87,12 +87,14 @@
                 var month = ("0" + (date.getMonth() + 1)).slice(-2);
                 var day = ("0" + date.getDate()).slice(-2);
                 var year = date.getFullYear();
-                return year + "-" + month + "-" + day;
+                return year + "-" + month + "-" + day;  // Transform to YYYY-MM-DD
             }
     
             window.checkAvailability = async function() {
-                const fromDate = formatDate(getDate($("#from")[0]));
-                const toDate = formatDate(getDate($("#to")[0]));
+                const fromDate = formatDate(getDate($("#from")[0]));  // Transform date format
+                const toDate = formatDate(getDate($("#to")[0]));      // Transform date format
+    
+                console.log('Sending Dates:', { from: fromDate, to: toDate });
     
                 $("#TAAvailabilityTable tbody").empty();
     
@@ -103,7 +105,7 @@
                             'Content-Type': 'application/json',
                             'x-api-key': 'OJXcLiVzVX4Q650IM1eF18xhcUQaoTH6CnK67Oxh'
                         },
-                        body: JSON.stringify({ from: fromDate, to: toDate })
+                        body: JSON.stringify({ from: fromDate, to: toDate })  // Use correct field names
                     });
     
                     if (!response.ok) {
@@ -112,11 +114,11 @@
                     }
     
                     const result = await response.json();
+                    console.log('API Response:', result);
     
-                    // Populate the table with the availability data
                     const dates = getDatesInRange(new Date(fromDate), new Date(toDate));
                     dates.forEach(date => {
-                        const availableTA = result[date] || 22; // Default value if not provided by the API
+                        const availableTA = result[date] || 22;
                         $("#TAAvailabilityTable tbody").append(`<tr><td>${date}</td><td>${availableTA}</td></tr>`);
                     });
                 } catch (error) {
@@ -138,6 +140,7 @@
             }
         });
     </script>
+    
     
          
 </body>
