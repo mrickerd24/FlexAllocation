@@ -24,18 +24,18 @@ export const handler = async (event) => {
         };
     }
 
-    const { from, to } = requestData;
+    const { fromDate, toDate } = requestData;
 
     // Validate required fields
-    if (!from || !to) {
+    if (!fromDate || !toDate) {
         return {
             statusCode: 400,
-            body: JSON.stringify({ message: "Missing required fields: 'from' and 'to'" }),
+            body: JSON.stringify({ message: "Missing required fields: 'fromDate' and 'toDate'" }),
         };
     }
 
     // Validate date formats
-    if (!isValidDate(from) || !isValidDate(to)) {
+    if (!isValidDate(fromDate) || !isValidDate(toDate)) {
         return {
             statusCode: 400,
             body: JSON.stringify({ message: "Invalid date format. Use YYYY-MM-DD." }),
@@ -43,7 +43,7 @@ export const handler = async (event) => {
     }
 
     // Get list of dates in the range
-    const dates = getDatesInRange(from, to);
+    const dates = getDatesInRange(fromDate, toDate);
     const availability = {};
 
     // Fetch availability for each date
