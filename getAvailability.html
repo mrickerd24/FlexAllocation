@@ -56,6 +56,16 @@
     </footer>
 
     <script>
+        $(function() {
+            // Initialize datepickers
+            $("#from").datepicker({
+                dateFormat: "yy-mm-dd"
+            });
+            $("#to").datepicker({
+                dateFormat: "yy-mm-dd"
+            });
+        });
+
         async function checkAvailability() {
             const fromDate = document.getElementById('from').value;
             const toDate = document.getElementById('to').value;
