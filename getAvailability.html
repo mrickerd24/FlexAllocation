@@ -94,8 +94,10 @@
                 const fromDate = formatDate(getDate($("#from")[0]));  // Transform date format
                 const toDate = formatDate(getDate($("#to")[0]));      // Transform date format
     
+                // Log the dates being sent
                 console.log('Sending Dates:', { from: fromDate, to: toDate });
     
+                // Clear the table before fetching new data
                 $("#TAAvailabilityTable tbody").empty();
     
                 try {
@@ -105,7 +107,7 @@
                             'Content-Type': 'application/json',
                             'x-api-key': 'OJXcLiVzVX4Q650IM1eF18xhcUQaoTH6CnK67Oxh'
                         },
-                        body: JSON.stringify({ from: fromDate, to: toDate })  // Use correct field names
+                        body: JSON.stringify({ from: fromDate, to: toDate })  // Send the dates in the correct format
                     });
     
                     if (!response.ok) {
@@ -118,7 +120,7 @@
     
                     const dates = getDatesInRange(new Date(fromDate), new Date(toDate));
                     dates.forEach(date => {
-                        const availableTA = result[date] || 22;
+                        const availableTA = result[date] || 22;  // Default to 22 if no data is returned
                         $("#TAAvailabilityTable tbody").append(`<tr><td>${date}</td><td>${availableTA}</td></tr>`);
                     });
                 } catch (error) {
@@ -140,8 +142,5 @@
             }
         });
     </script>
-    
-    
-         
 </body>
 </html>
