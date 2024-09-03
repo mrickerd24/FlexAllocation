@@ -11,6 +11,7 @@ export const handler = async (event) => {
     try {
         if (event.body) {
             requestData = JSON.parse(event.body);
+            console.log('Parsed request data:', requestData); // Log the parsed data
         } else {
             return {
                 statusCode: 400,
@@ -18,6 +19,7 @@ export const handler = async (event) => {
             };
         }
     } catch (error) {
+        console.error('Error parsing request body:', error);
         return {
             statusCode: 400,
             body: JSON.stringify({ message: "Invalid JSON format" }),
@@ -28,6 +30,7 @@ export const handler = async (event) => {
 
     // Validate required fields
     if (!fromDate || !toDate) {
+        console.error('Missing required fields:', { fromDate, toDate });
         return {
             statusCode: 400,
             body: JSON.stringify({ message: "Missing required fields: 'fromDate' and 'toDate'" }),
@@ -36,6 +39,7 @@ export const handler = async (event) => {
 
     // Validate date formats
     if (!isValidDate(fromDate) || !isValidDate(toDate)) {
+        console.error('Invalid date format:', { fromDate, toDate });
         return {
             statusCode: 400,
             body: JSON.stringify({ message: "Invalid date format. Use YYYY-MM-DD." }),
@@ -82,7 +86,7 @@ function getDatesInRange(startDate, endDate) {
     const end = new Date(endDate);
 
     while (currentDate <= end) {
-        dates.push(currentDate.toISOString().split('T')[0]);
+        dates.push(new Date(currentDate).toISOString().split('T')[0]);
         currentDate.setDate(currentDate.getDate() + 1);
     }
 

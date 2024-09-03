@@ -65,18 +65,28 @@
                 dateFormat: "yy-mm-dd"
             });
         });
-
+    
+        function isValidDate(dateString) {
+            const regex = /^\d{4}-\d{2}-\d{2}$/;
+            return dateString.match(regex) !== null;
+        }
+    
         async function checkAvailability() {
             const fromDate = document.getElementById('from').value;
             const toDate = document.getElementById('to').value;
-
+    
             if (!fromDate || !toDate) {
                 alert('Please select both start and end dates.');
                 return;
             }
-
+    
+            if (!isValidDate(fromDate) || !isValidDate(toDate)) {
+                alert('Please enter dates in the format YYYY-MM-DD.');
+                return;
+            }
+    
             const requestBody = JSON.stringify({ fromDate: fromDate, toDate: toDate });
-
+    
             try {
                 const response = await fetch('https://p64qi6dt9g.execute-api.ca-central-1.amazonaws.com/prod/allocationRequest', {
                     method: 'POST',
@@ -85,11 +95,12 @@
                     },
                     body: requestBody
                 });
-
+    
                 if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
+                    const errorText = await response.text();
+                    throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorText}`);
                 }
-
+    
                 const data = await response.json();
                 updateTable(data);
             } catch (error) {
@@ -97,20 +108,20 @@
                 alert(`Error fetching availability: ${error.message}`);
             }
         }
-
+    
         function updateTable(data) {
             const tableBody = document.querySelector('#TAAvailabilityTable tbody');
             tableBody.innerHTML = ''; // Clear existing rows
-
-            if (Array.isArray(data) && data.length > 0) {
-                data.forEach(item => {
+    
+            if (data && Object.keys(data).length > 0) {
+                Object.keys(data).forEach(date => {
                     const row = document.createElement('tr');
                     const dateCell = document.createElement('td');
                     const availableTAsCell = document.createElement('td');
-
-                    dateCell.textContent = item.date;
-                    availableTAsCell.textContent = item.availableTAs;
-
+    
+                    dateCell.textContent = date;
+                    availableTAsCell.textContent = data[date];
+    
                     row.appendChild(dateCell);
                     row.appendChild(availableTAsCell);
                     tableBody.appendChild(row);
@@ -125,5 +136,7 @@
             }
         }
     </script>
+    
+    
 </body>
 </html>
