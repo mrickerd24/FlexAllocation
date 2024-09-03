@@ -55,7 +55,7 @@ export const handler = async (event) => {
             };
             const result = await dynamoDb.get(params).promise();
             const availableTA = result.Item ? result.Item.availableTA : 0;
-            availability[date] = 22 - availableTA; // Adjust based on your logic
+            availability[date] = 22 + availableTA; // Adjust based on your logic
         } catch (error) {
             console.error(`Error fetching data for ${date}:`, error);
             availability[date] = 22; // Default if there's an error
