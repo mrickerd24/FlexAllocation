@@ -75,7 +75,7 @@
                 return;
             }
 
-            const requestBody = JSON.stringify({ from: fromDate, to: toDate });
+            const requestBody = JSON.stringify({ fromDate: fromDate, toDate: toDate });
 
             try {
                 const response = await fetch('https://p64qi6dt9g.execute-api.ca-central-1.amazonaws.com/prod/allocationRequest', {
