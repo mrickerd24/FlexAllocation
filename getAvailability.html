@@ -3,160 +3,100 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Allocation Request</title>
+    <title>Check Availability</title>
     <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
-</head>
-<body>
-    <header>
-        <div class="logo-image"></div>
-    </header>
-
-    <main>
-        <hr width="300px" size="2" color="#f89829">
-        <h1 style="text-align: center;">Allocation Request</h1>
-        <hr width="500px" size="2" color="#f89829">
-
-        <div class="form-container" style="width: 1000px; margin: 0 auto; padding: 20px;">
-            <form id="AllocationRequest" name="AllocationRequest" onsubmit="submitForm(event)">
-                <div class="form-group">
-                    <label for="from">From:</label>
-                    <input type="text" id="from" name="from">
-                </div>
-                <div class="form-group">
-                    <label for="to">To:</label>
-                    <input type="text" id="to" name="to">
-                </div>
-                <div class="form-group">
-                    <button type="button" class="button" onclick="checkAvailability()">Check Availability</button>
-                </div>
-                <br>
-                <div class="form-container" style="width: 800px; margin: 0 auto; padding: 20px;">
-                    <h2>TA Availability</h2>
-                    <table id="TAAvailabilityTable" style="margin: 0 auto;">
-                        <thead>
-                            <tr>
-                                <th>Date</th>
-                                <th>Available TAs</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- Rows will be added here dynamically -->
-                        </tbody>
-                    </table>
-                </div>
-            </form>
-        </div>
-    </main>
-
-    <footer>
-        <p>&copy; 2024 Lionbridge Games. All rights reserved.</p>
-    </footer>
-
     <script>
-        $(function() {
-            var dateFormat = "yy-mm-dd",
-                from = $("#from").datepicker({
-                    defaultDate: "+1w",
-                    changeMonth: true,
-                    numberOfMonths: 1,
-                    dateFormat: dateFormat
-                }).on("change", function() {
-                    to.datepicker("option", "minDate", getDate(this));
-                }),
-                to = $("#to").datepicker({
-                    defaultDate: "+1w",
-                    changeMonth: true,
-                    numberOfMonths: 1,
-                    dateFormat: dateFormat
-                }).on("change", function() {
-                    from.datepicker("option", "maxDate", getDate(this));
+        // Function to get the date value from an input element
+        function getDate(inputElement) {
+            const dateValue = inputElement.value;
+            return dateValue ? new Date(dateValue) : null;
+        }
+
+        // Function to format date as YYYY-MM-DD
+        function formatDate(date) {
+            const month = ("0" + (date.getMonth() + 1)).slice(-2);
+            const day = ("0" + date.getDate()).slice(-2);
+            const year = date.getFullYear();
+            return `${year}-${month}-${day}`;
+        }
+
+        // Function to generate an array of dates between two dates
+        function getDatesInRange(startDate, endDate) {
+            const dates = [];
+            let currentDate = new Date(startDate);
+            while (currentDate <= endDate) {
+                dates.push(formatDate(currentDate));
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+            return dates;
+        }
+
+        // Function to check availability and make an API request
+        window.checkAvailability = async function() {
+            const fromDate = getDate(document.getElementById("from"));
+            const toDate = getDate(document.getElementById("to"));
+
+            if (!fromDate || !toDate || fromDate > toDate) {
+                console.error('Invalid date range');
+                return;
+            }
+
+            const formattedFromDate = formatDate(fromDate);
+            const formattedToDate = formatDate(toDate);
+
+            console.log('Sending Dates:', { from: formattedFromDate, to: formattedToDate });
+
+            // Clear existing table data
+            $("#TAAvailabilityTable tbody").empty();
+
+            try {
+                const response = await fetch('https://p64qi6dt9g.execute-api.ca-central-1.amazonaws.com/prod/allocationRequest', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-api-key': 'OJXcLiVzVX4Q650IM1eF18xhcUQaoTH6CnK67Oxh'
+                    },
+                    body: JSON.stringify({ from: formattedFromDate, to: formattedToDate })
                 });
 
-            function getDate(element) {
-                if (!element || !element.value) {
-                    return null;
+                if (!response.ok) {
+                    const errorDetails = await response.json();
+                    throw new Error(`HTTP error! Status: ${response.status}, Details: ${JSON.stringify(errorDetails)}`);
                 }
-                const dateParts = element.value.split('-');
-                if (dateParts.length !== 3) {
-                    return null;
-                }
-                const year = parseInt(dateParts[0], 10);
-                const month = parseInt(dateParts[1], 10) - 1; // Month is zero-based
-                const day = parseInt(dateParts[2], 10);
-                return new Date(year, month, day);
+
+                const result = await response.json();
+                console.log('API Response:', result);
+
+                const dates = getDatesInRange(new Date(formattedFromDate), new Date(formattedToDate));
+                dates.forEach(date => {
+                    const availableTA = result[date] || 22;
+                    $("#TAAvailabilityTable tbody").append(`<tr><td>${date}</td><td>${availableTA}</td></tr>`);
+                });
+            } catch (error) {
+                console.error('Error fetching availability:', error);
             }
-
-            function formatDate(date) {
-                if (!date) {
-                    throw new Error('Invalid date provided');
-                }
-                const year = date.getFullYear();
-                const month = (date.getMonth() + 1).toString().padStart(2, '0');
-                const day = date.getDate().toString().padStart(2, '0');
-                return `${year}-${month}-${day}`;
-            }
-
-            window.checkAvailability = async function() {
-    const fromDate = getDate(document.getElementById("from"));
-    const toDate = getDate(document.getElementById("to"));
-
-    try {
-        // Validate the dates
-        if (!fromDate || !toDate || fromDate > toDate) {
-            throw new Error('Invalid date range');
-        }
-
-        const formattedFromDate = formatDate(fromDate);
-        const formattedToDate = formatDate(toDate);
-
-        console.log('Sending Dates:', { from: formattedFromDate, to: formattedToDate });
-
-        $("#TAAvailabilityTable tbody").empty();
-
-        const response = await fetch('https://p64qi6dt9g.execute-api.ca-central-1.amazonaws.com/prod/allocationRequest', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'x-api-key': 'OJXcLiVzVX4Q650IM1eF18xhcUQaoTH6CnK67Oxh'
-            },
-            body: JSON.stringify({ from: formattedFromDate, to: formattedToDate })  // Change here
-        });
-
-        if (!response.ok) {
-            const errorDetails = await response.json();
-            throw new Error(`HTTP error! Status: ${response.status}, Details: ${JSON.stringify(errorDetails)}`);
-        }
-
-        const result = await response.json();
-        console.log('API Response:', result);
-
-        const dates = getDatesInRange(new Date(fromDate), new Date(toDate));
-        dates.forEach(date => {
-            const availableTA = result[date] || 22;
-            $("#TAAvailabilityTable tbody").append(`<tr><td>${date}</td><td>${availableTA}</td></tr>`);
-        });
-    } catch (error) {
-        console.error('Error fetching availability:', error);
-    }
-};
-
-
-            function getDatesInRange(startDate, endDate) {
-                const dates = [];
-                let currentDate = startDate;
-                const end = endDate;
-
-                while (currentDate <= end) {
-                    dates.push(formatDate(currentDate));
-                    currentDate.setDate(currentDate.getDate() + 1);
-                }
-
-                return dates;
-            }
-        });
+        };
     </script>
+</head>
+<body>
+    <h1>Check Availability</h1>
+    <form id="availabilityForm" onsubmit="event.preventDefault(); checkAvailability();">
+        <label for="from">From:</label>
+        <input type="date" id="from" name="from" required>
+        <label for="to">To:</label>
+        <input type="date" id="to" name="to" required>
+        <button type="submit">Check Availability</button>
+    </form>
+    <table id="TAAvailabilityTable">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Available TAs</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Data will be populated here -->
+        </tbody>
+    </table>
 </body>
 </html>

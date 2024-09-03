@@ -1,90 +1,77 @@
-import AWS from 'aws-sdk';
+import pkg from 'aws-sdk';
+const { DynamoDB } = pkg;
 
-const dynamoDb = new AWS.DynamoDB.DocumentClient({ region: 'ca-central-1' });
+const dynamoDb = new DynamoDB.DocumentClient({ region: 'ca-central-1' });
 
 export const handler = async (event) => {
-    console.log('Received event:', JSON.stringify(event, null, 2)); // Log the event
-
+    // Parse request body
     let requestData;
-
-    // Check if body exists and parse it
     try {
-        if (event.body) {
-            requestData = JSON.parse(event.body);
-        } else {
-            return {
-                statusCode: 400,
-                body: JSON.stringify({ message: "Missing request body" }),
-            };
-        }
+        requestData = JSON.parse(event.body);
     } catch (error) {
+        console.error('Error parsing JSON:', error);
         return {
             statusCode: 400,
             body: JSON.stringify({ message: "Invalid JSON format" }),
         };
     }
 
-    const { fromDate, toDate } = requestData;
+    // Extract fields from request data
+    const { from, to } = requestData;
 
     // Validate required fields
-    if (!fromDate || !toDate) {
+    if (!from || !to) {
         return {
             statusCode: 400,
-            body: JSON.stringify({ message: "Missing required fields: 'fromDate' and 'toDate'" }),
+            body: JSON.stringify({ message: "Missing required fields: 'from' and 'to'" }),
         };
     }
 
-    // Validate date formats
-    if (!isValidDate(fromDate) || !isValidDate(toDate)) {
-        return {
-            statusCode: 400,
-            body: JSON.stringify({ message: "Invalid date format. Use YYYY-MM-DD." }),
-        };
-    }
+    console.log('Request Data:', requestData);
 
-    // Get list of dates in the range
-    const dates = getDatesInRange(fromDate, toDate);
-    const availability = {};
+    try {
+        // Initialize response object
+        const response = {};
 
-    // Fetch availability for each date
-    for (const date of dates) {
-        try {
+        // Get the availability for each date in the range
+        const startDate = new Date(from);
+        const endDate = new Date(to);
+        const currentDate = new Date(startDate);
+
+        while (currentDate <= endDate) {
+            const dateKey = formatDate(currentDate);
             const params = {
                 TableName: 'Availabilitytable',
-                Key: { date },
+                Key: { date: dateKey },
+                ProjectionExpression: 'availablePeople',
             };
-            const result = await dynamoDb.get(params).promise();
-            const availableTA = result.Item ? result.Item.availableTA : 0;
-            availability[date] = 22 + availableTA; // Adjust based on your logic
-        } catch (error) {
-            console.error(`Error fetching data for ${date}:`, error);
-            availability[date] = 22; // Default if there's an error
-        }
-    }
 
-    return {
-        statusCode: 200,
-        body: JSON.stringify(availability),
-    };
+            const result = await dynamoDb.get(params).promise();
+            response[dateKey] = result.Item ? result.Item.availablePeople : 22;
+
+            currentDate.setDate(currentDate.getDate() + 1);
+        }
+
+        return {
+            statusCode: 200,
+            body: JSON.stringify(response),
+        };
+    } catch (error) {
+        console.error('Error:', error);
+        return {
+            statusCode: 500,
+            body: JSON.stringify({
+                message: "Failed to process request",
+                error: error.message,
+            }),
+        };
+    }
 };
 
-// Function to check if a date is in valid format
-function isValidDate(dateString) {
-    const regex = /^\d{4}-\d{2}-\d{2}$/;
-    const date = new Date(dateString);
-    return dateString.match(regex) !== null && !isNaN(date.getTime());
-}
-
-// Function to get all dates in the range
-function getDatesInRange(startDate, endDate) {
-    const dates = [];
-    let currentDate = new Date(startDate);
-    const end = new Date(endDate);
-
-    while (currentDate <= end) {
-        dates.push(currentDate.toISOString().split('T')[0]);
-        currentDate.setDate(currentDate.getDate() + 1);
-    }
-
-    return dates;
+// Helper function to format date as YYYY-MM-DD
+function formatDate(date) {
+    const month = ("0" + (date.getMonth() + 1)).slice(-2);
+    const day = ("0" + date.getDate()).slice(-2);
+    const year = date.getFullYear();
+    return `${year}-${month}-${day}`;
 }
