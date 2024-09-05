@@ -86,7 +86,15 @@
             }
     
             const requestBody = JSON.stringify({ fromDate: fromDate, toDate: toDate });
-            console.log('Request Body:', requestBody); // Log the request body
+            const wrappedRequestBody = JSON.stringify({
+                body: requestBody,
+                httpMethod: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            });
+    
+            console.log('Request Body:', wrappedRequestBody); // Log the request body
     
             try {
                 const response = await fetch('https://p64qi6dt9g.execute-api.ca-central-1.amazonaws.com/prod/allocationRequest', {
@@ -94,7 +102,7 @@
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: requestBody
+                    body: wrappedRequestBody
                 });
     
                 if (!response.ok) {
@@ -121,7 +129,7 @@
                     const availableTAsCell = document.createElement('td');
     
                     dateCell.textContent = date;
-                    availableTAsCell.textContent = data[date];
+                    availableTAsCell.textContent = data\[date\];
     
                     row.appendChild(dateCell);
                     row.appendChild(availableTAsCell);
@@ -136,7 +144,8 @@
                 tableBody.appendChild(row);
             }
         }
-    </script>    
+    </script>
+     
     
 </body>
 </html>

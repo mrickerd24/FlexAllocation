@@ -13,6 +13,7 @@ export const handler = async (event) => {
             requestData = JSON.parse(event.body);
             console.log('Parsed request data:', requestData); // Log the parsed data
         } else {
+            console.error('Missing request body');
             return {
                 statusCode: 400,
                 body: JSON.stringify({ message: "Missing request body" }),
