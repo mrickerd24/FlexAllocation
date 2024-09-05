@@ -85,9 +85,8 @@
                 return;
             }
     
-            const requestBody = JSON.stringify({ fromDate: fromDate, toDate: toDate });
-            const wrappedRequestBody = JSON.stringify({
-                body: requestBody,
+            const requestBody = JSON.stringify({
+                body: JSON.stringify({ fromDate: fromDate, toDate: toDate }),
                 httpMethod: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -102,7 +101,7 @@
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: wrappedRequestBody
+                    body: requestBody
                 });
     
                 if (!response.ok) {
@@ -129,7 +128,7 @@
                     const availableTAsCell = document.createElement('td');
     
                     dateCell.textContent = date;
-                    availableTAsCell.textContent = data\[date\];
+                    availableTAsCell.textContent = data[date];
     
                     row.appendChild(dateCell);
                     row.appendChild(availableTAsCell);
@@ -145,7 +144,8 @@
             }
         }
     </script>
-     
+    
+    
     
 </body>
 </html>
